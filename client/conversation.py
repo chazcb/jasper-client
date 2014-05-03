@@ -1,5 +1,5 @@
 from notifier import Notifier
-from musicmode import *
+from musicmode import MusicMode
 from brain import Brain
 
 
@@ -16,12 +16,11 @@ class Conversation(object):
         """A wrapper for querying brain."""
 
         # check if input is meant to start the music module
-        if any(x in text.upper() for x in ["SPOTIFY","MUSIC"]):
+        if any(x in text.upper() for x in ["SPOTIFY", "MUSIC"]):
             self.mic.say("Please give me a moment, I'm loading your Spotify playlists.")
             music_mode = MusicMode(self.persona, self.mic)
             music_mode.handleForever()
             return
-
 
         self.brain.query(text)
 

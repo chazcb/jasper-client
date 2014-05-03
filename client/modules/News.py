@@ -8,7 +8,7 @@ WORDS = ["NEWS", "YES", "NO", "FIRST", "SECOND", "THIRD"]
 URL = 'http://news.ycombinator.com'
 
 
-class Article:
+class Article(object):
 
     def __init__(self, title, URL):
         self.title = title
@@ -31,14 +31,14 @@ def getTopArticles(maxResults=None):
 
 def handle(text, mic, profile):
     """
-        Responds to user-input, typically speech text, with a summary of
-        the day's top news headlines, sending them to the user over email
-        if desired.
+    Responds to user-input, typically speech text, with a summary of
+    the day's top news headlines, sending them to the user over email
+    if desired.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
-        mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone number)
+    Arguments:
+    text -- user-input, typically transcribed speech
+    mic -- used to interact with the user (for both input and output)
+    profile -- contains information related to the user (e.g., phone number)
     """
     mic.say("Pulling up the news")
     articles = getTopArticles(maxResults=3)
@@ -83,7 +83,8 @@ def handle(text, mic, profile):
                     else:
                         if not app_utils.emailUser(profile, SUBJECT="", BODY=article_link):
                             mic.say(
-                                "I'm having trouble sending you these articles. Please make sure that your phone number and carrier are correct on the dashboard.")
+                                "I'm having trouble sending you these articles. "
+                                "Please make sure that your phone number and carrier are correct on the dashboard.")
                             return
 
             # if prefers email, we send once, at the end
@@ -91,7 +92,8 @@ def handle(text, mic, profile):
                 body += "</ul>"
                 if not app_utils.emailUser(profile, SUBJECT="Your Top Headlines", BODY=body):
                     mic.say(
-                        "I'm having trouble sending you these articles. Please make sure that your phone number and carrier are correct on the dashboard.")
+                        "I'm having trouble sending you these articles. "
+                        "Please make sure that your phone number and carrier are correct on the dashboard.")
                     return
 
             mic.say("All set")
@@ -112,9 +114,9 @@ def handle(text, mic, profile):
 
 def isValid(text):
     """
-        Returns True if the input is related to the news.
+    Returns True if the input is related to the news.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
+    Arguments:
+    text -- user-input, typically transcribed speech
     """
     return bool(re.search(r'\b(news|headline)\b', text, re.IGNORECASE))

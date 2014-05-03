@@ -1,0 +1,3 @@
+#!/bin/bash
+export GIT_WORK_TREE=$HOME/jasper
+git checkout -f

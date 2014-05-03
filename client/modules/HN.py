@@ -10,7 +10,7 @@ WORDS = ["HACKER", "NEWS", "YES", "NO", "FIRST", "SECOND", "THIRD"]
 URL = 'http://news.ycombinator.com'
 
 
-class HNStory:
+class HNStory(object):
 
     def __init__(self, title, URL):
         self.title = title
@@ -19,10 +19,10 @@ class HNStory:
 
 def getTopStories(maxResults=None):
     """
-        Returns the top headlines from Hacker News.
+    Returns the top headlines from Hacker News.
 
-        Arguments:
-        maxResults -- if provided, returns a random sample of size maxResults
+    Arguments:
+    maxResults -- if provided, returns a random sample of size maxResults
     """
     hdr = {'User-Agent': 'Mozilla/5.0'}
     req = urllib2.Request(URL, headers=hdr)
@@ -92,7 +92,8 @@ def handle(text, mic, profile):
                     else:
                         if not app_utils.emailUser(profile, SUBJECT="", BODY=article_link):
                             mic.say(
-                                "I'm having trouble sending you these articles. Please make sure that your phone number and carrier are correct on the dashboard.")
+                                "I'm having trouble sending you these articles. "
+                                "Please make sure that your phone number and carrier are correct on the dashboard.")
                             return
 
             # if prefers email, we send once, at the end
@@ -100,7 +101,8 @@ def handle(text, mic, profile):
                 body += "</ul>"
                 if not app_utils.emailUser(profile, SUBJECT="From the Front Page of Hacker News", BODY=body):
                     mic.say(
-                        "I'm having trouble sending you these articles. Please make sure that your phone number and carrier are correct on the dashboard.")
+                        "I'm having trouble sending you these articles. "
+                        "Please make sure that your phone number and carrier are correct on the dashboard.")
                     return
 
             mic.say("All done.")
@@ -120,9 +122,9 @@ def handle(text, mic, profile):
 
 def isValid(text):
     """
-        Returns True if the input is related to Hacker News.
+    Returns True if the input is related to Hacker News.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
+    Arguments:
+    text -- user-input, typically transcribed speech
     """
     return bool(re.search(r'\b(hack(er)?|HN)\b', text, re.IGNORECASE))

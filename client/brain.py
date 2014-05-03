@@ -1,5 +1,16 @@
 import logging
-from modules import *
+from modules import (
+    Birthday,
+    Gmail,
+    HN,
+    Joke,
+    Life,
+    News,
+    Notifications,
+    Time,
+    Unclear,
+    Weather,
+)
 
 
 def logError():
@@ -28,7 +39,16 @@ class Brain(object):
         self.mic = mic
         self.profile = profile
         self.modules = [
-            Gmail, Notifications, Birthday, Weather, HN, News, Time, Joke, Life]
+            Birthday,
+            Gmail,
+            HN,
+            Joke,
+            Life,
+            News,
+            Notifications,
+            Time,
+            Weather,
+        ]
         self.modules.append(Unclear)
 
     def query(self, text):

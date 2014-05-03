@@ -2,7 +2,6 @@ import smtplib
 from email.MIMEText import MIMEText
 import urllib2
 import re
-import requests
 from pytz import timezone
 
 
@@ -30,12 +29,12 @@ def sendEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER):
 
 def emailUser(profile, SUBJECT="", BODY=""):
     """
-        Sends an email.
+    Sends an email.
 
-        Arguments:
-        profile -- contains information related to the user (e.g., email address)
-        SUBJECT -- subject line of the email
-        BODY -- body text of the email
+    Arguments:
+    profile -- contains information related to the user (e.g., email address)
+    SUBJECT -- subject line of the email
+    BODY -- body text of the email
     """
     def generateSMSEmail(profile):
         """Generates an email from a user's phone number based on their carrier."""
@@ -80,10 +79,10 @@ def emailUser(profile, SUBJECT="", BODY=""):
 
 def getTimezone(profile):
     """
-        Returns the pytz timezone for a given profile.
+    Returns the pytz timezone for a given profile.
 
-        Arguments:
-        profile -- contains information related to the user (e.g., email address)
+    Arguments:
+    profile -- contains information related to the user (e.g., email address)
     """
     try:
         return timezone(profile['timezone'])
@@ -93,10 +92,10 @@ def getTimezone(profile):
 
 def generateTinyURL(URL):
     """
-        Generates a compressed URL.
+    Generates a compressed URL.
 
-        Arguments:
-        URL -- the original URL to-be compressed
+    Arguments:
+    URL -- the original URL to-be compressed
     """
     target = "http://tinyurl.com/api-create.php?url=" + URL
     response = urllib2.urlopen(target)

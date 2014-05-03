@@ -38,19 +38,20 @@ def getForecast(profile):
 
 def handle(text, mic, profile):
     """
-        Responds to user-input, typically speech text, with a summary of
-        the relevant weather for the requested date (typically, weather
-        information will not be available for days beyond tomorrow).
+    Responds to user-input, typically speech text, with a summary of
+    the relevant weather for the requested date (typically, weather
+    information will not be available for days beyond tomorrow).
 
-        Arguments:
-        text -- user-input, typically transcribed speech
-        mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone number)
+    Arguments:
+    text -- user-input, typically transcribed speech
+    mic -- used to interact with the user (for both input and output)
+    profile -- contains information related to the user (e.g., phone number)
     """
 
     if not profile['location']:
         mic.say(
-            "I'm sorry, I can't seem to access that information. Please make sure that you've set your location on the dashboard.")
+            "I'm sorry, I can't seem to access that information. "
+            "Please make sure that you've set your location on the dashboard.")
         return
 
     tz = getTimezone(profile)
@@ -76,14 +77,14 @@ def handle(text, mic, profile):
     for entry in forecast:
         try:
             date_desc = entry['title'].split()[0].strip().lower()
-            if date_desc == 'forecast': #For global forecasts
-            	date_desc = entry['title'].split()[2].strip().lower()
-            	weather_desc = entry['summary']
+            if date_desc == 'forecast':  # For global forecasts
+                date_desc = entry['title'].split()[2].strip().lower()
+                weather_desc = entry['summary']
 
-            elif date_desc == 'current': #For first item of global forecasts
-            	continue
+            elif date_desc == 'current':  # For first item of global forecasts
+                continue
             else:
-            	weather_desc = entry['summary'].split('-')[1] #US forecasts
+                weather_desc = entry['summary'].split('-')[1]  # US forecasts
 
             if weekday == date_desc:
                 output = date_keyword + \
@@ -102,9 +103,15 @@ def handle(text, mic, profile):
 
 def isValid(text):
     """
-        Returns True if the text is related to the weather.
+    Returns True if the text is related to the weather.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
+    Arguments:
+    text -- user-input, typically transcribed speech
     """
-    return bool(re.search(r'\b(weathers?|temperature|forecast|outside|hot|cold|jacket|coat|rain)\b', text, re.IGNORECASE))
+    return bool(
+        re.search(
+            r'\b(weathers?|temperature|forecast|outside|hot|cold|jacket|coat|rain)\b',
+            text,
+            re.IGNORECASE
+        )
+    )

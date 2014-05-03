@@ -8,13 +8,13 @@ def detectYears(input):
 
 def clean(input):
     """
-        Manually adjust output text before it's translated into
-        actual speech by the TTS system. This is to fix minior
-        idiomatic issues, for example, that 1901 is pronounced
-        "one thousand, ninehundred and one" rather than
-        "nineteen ninety one".
+    Manually adjust output text before it's translated into
+    actual speech by the TTS system. This is to fix minior
+    idiomatic issues, for example, that 1901 is pronounced
+    "one thousand, ninehundred and one" rather than
+    "nineteen ninety one".
 
-        Arguments:
-        input -- original speech text to-be modified
+    Arguments:
+    input -- original speech text to-be modified
     """
     return detectYears(input)

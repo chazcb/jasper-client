@@ -1,10 +1,6 @@
-"""
-    This iterates over all the WORDS variables in the modules and creates a dictionary that the client program will use
-"""
 
 import os
 import sys
-import pkgutil
 
 lib_path = os.path.abspath('../client')
 sys.path.append(lib_path)
@@ -14,7 +10,8 @@ import g2p
 
 def compile():
     """
-        Gets the words and creates the dictionary
+    This iterates over all the WORDS variables in the modules and
+    creates a dictionary that the client program will use.
     """
 
     m = dir(modules)
@@ -29,7 +26,7 @@ def compile():
     words = list(set(words))
 
     # for spotify module
-    words.extend(["MUSIC","SPOTIFY"])
+    words.extend(["MUSIC", "SPOTIFY"])
 
     # create the dictionary
     pronounced = g2p.translateWords(words)
@@ -47,6 +44,14 @@ def compile():
 
     # make language model
     os.system(
-        "text2idngram -vocab ../client/sentences.txt < ../client/sentences.txt -idngram temp.idngram")
+        "text2idngram -vocab ../client/sentences.txt < "
+        "../client/sentences.txt -idngram temp.idngram"
+    )
+
     os.system(
-        "idngram2lm -idngram temp.idngram -vocab ../client/sentences.txt -arpa ../client/languagemodel.lm")
+        "idngram2lm -idngram temp.idngram -vocab "
+        "../client/sentences.txt -arpa ../client/languagemodel.lm"
+    )
+
+if __name__ == "main":
+    compile()

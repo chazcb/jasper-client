@@ -31,12 +31,12 @@ def getRandomJoke(filename="JOKES.txt"):
 
 def handle(text, mic, profile):
     """
-        Responds to user-input, typically speech text, by telling a joke.
+    Responds to user-input, typically speech text, by telling a joke.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
-        mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone number)
+    Arguments:
+    text -- user-input, typically transcribed speech
+    mic -- used to interact with the user (for both input and output)
+    profile -- contains information related to the user (e.g., phone number)
     """
     joke = getRandomJoke()
 
@@ -55,9 +55,9 @@ def handle(text, mic, profile):
 
 def isValid(text):
     """
-        Returns True if the input is related to jokes/humor.
+    Returns True if the input is related to jokes/humor.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
+    Arguments:
+    text -- user-input, typically transcribed speech
     """
     return bool(re.search(r'\bjoke\b', text, re.IGNORECASE))

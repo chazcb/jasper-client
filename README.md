@@ -1,13 +1,26 @@
-jasper-client
-=============
+# Jasper
 
-Client code for the Jasper voice computing platform. Jasper is an open source platform for developing always-on, voice-controlled applications.
+A fork of the popular Jasper voice computing platform with a focus on:
 
-Learn more at [jasperproject.github.io](http://jasperproject.github.io/), where we have assembly and installation instructions, as well as extensive documentation.
+ - Decoupling audio input processing, voice output and conversation handlers
+ - Removal of features not required for the above to run (wifi setup, sudo, etc.)
+ - PEP8 via Flake8, code modularization, DRY
+ - Replacement of magic strings w/ settings
+ - Portability and documentation for setup in the README
+ - Tests
 
-## Contact
+# Installation and Setup
+Current docs are at [jasperproject.github.io](http://jasperproject.github.io/).
+
+## Acknowledgements
 
 Jasper is developed by [Shubhro Saha](http://www.princeton.edu/~saha/) and [Charles Marsh](http://www.princeton.edu/~crmarsh/). Both can be reached by email at [saha@princeton.edu](mailto:saha@princeton.edu) and [crmarsh@princeton.edu](mailto:crmarsh@princeton.edu) respectively.
+
+## Contributions
+
+Jasper has recieved contributions by:
+- [FRITZ|FRITZ](http://www.fritztech.net) ( [fritz@fritztech.net](mailto:fritz@fritztech.net) )
+- [Exadrid](https://github.com/Exadrid)
 
 ## License
 

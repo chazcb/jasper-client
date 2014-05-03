@@ -2,20 +2,20 @@ import imaplib
 import email
 import re
 from dateutil import parser
-from app_utils import *
+from app_utils import unittest
 
 WORDS = ["EMAIL", "INBOX"]
 
 
 def getSender(email):
     """
-        Returns the best-guess sender of an email.
+    Returns the best-guess sender of an email.
 
-        Arguments:
-        email -- the email whose sender is desired
+    Arguments:
+    email -- the email whose sender is desired
 
-        Returns:
-        Sender of the email.
+    Returns:
+    Sender of the email.
     """
     sender = email['From']
     m = re.match(r'(.*)\s<.*>', sender)
@@ -30,13 +30,13 @@ def getDate(email):
 
 def getMostRecentDate(emails):
     """
-        Returns the most recent date of any email in the list provided.
+    Returns the most recent date of any email in the list provided.
 
-        Arguments:
-        emails -- a list of emails to check
+    Arguments:
+    emails -- a list of emails to check
 
-        Returns:
-        Date of the most recent email.
+    Returns:
+    Date of the most recent email.
     """
     dates = [getDate(e) for e in emails]
     dates.sort(reverse=True)
@@ -47,15 +47,15 @@ def getMostRecentDate(emails):
 
 def fetchUnreadEmails(profile, since=None, markRead=False, limit=None):
     """
-        Fetches a list of unread email objects from a user's Gmail inbox.
+    Fetches a list of unread email objects from a user's Gmail inbox.
 
-        Arguments:
-        profile -- contains information related to the user (e.g., Gmail address)
-        since -- if provided, no emails before this date will be returned
-        markRead -- if True, marks all returned emails as read in target inbox
+    Arguments:
+    profile -- contains information related to the user (e.g., Gmail address)
+    since -- if provided, no emails before this date will be returned
+    markRead -- if True, marks all returned emails as read in target inbox
 
-        Returns:
-        A list of unread email objects.
+    Returns:
+    A list of unread email objects.
     """
     conn = imaplib.IMAP4_SSL('imap.gmail.com')
     conn.debug = 0
@@ -85,14 +85,14 @@ def fetchUnreadEmails(profile, since=None, markRead=False, limit=None):
 
 def handle(text, mic, profile):
     """
-        Responds to user-input, typically speech text, with a summary of
-        the user's Gmail inbox, reporting on the number of unread emails
-        in the inbox, as well as their senders.
+    Responds to user-input, typically speech text, with a summary of
+    the user's Gmail inbox, reporting on the number of unread emails
+    in the inbox, as well as their senders.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
-        mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., Gmail address)
+    Arguments:
+    text -- user-input, typically transcribed speech
+    mic -- used to interact with the user (for both input and output)
+    profile -- contains information related to the user (e.g., Gmail address)
     """
     try:
         msgs = fetchUnreadEmails(profile, limit=5)
@@ -128,9 +128,9 @@ def handle(text, mic, profile):
 
 def isValid(text):
     """
-        Returns True if the input is related to email.
+    Returns True if the input is related to email.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
+    Arguments:
+    text -- user-input, typically transcribed speech
     """
     return bool(re.search(r'\bemail\b', text, re.IGNORECASE))

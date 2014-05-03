@@ -1,6 +1,3 @@
-"""
-    The Mic class handles all interactions with the microphone and speaker.
-"""
 
 import os
 import json
@@ -17,38 +14,64 @@ except:
     import pocketsphinx as ps
 
 
-class Mic:
+class Mic(object):
+    """
+    The Mic class handles all interactions with the microphone and speaker.
+    """
 
     speechRec = None
     speechRec_persona = None
 
-    def __init__(self, lmd, dictd, lmd_persona, dictd_persona, lmd_music=None, dictd_music=None):
-        """
-            Initiates the pocketsphinx instance.
+    def __init__(
+        self,
+        lmd,
+        dictd,
+        lmd_persona,
+        dictd_persona,
+        lmd_music=None,
+        dictd_music=None
+    ):
 
-            Arguments:
-            lmd -- filename of the full language model
-            dictd -- filename of the full dictionary (.dic)
-            lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
-            dictd_persona -- filename of the 'Persona' dictionary (.dic)
+        """
+        Initiates the pocketsphinx instance.
+
+        Arguments:
+        lmd            filename of the full language model
+        dictd          filename of the full dictionary (.dic)
+        lmd_persona    path to 'Persona' language model file
+                       (containing, e.g., 'Jasper')
+        dictd_persona  filename of the 'Persona' dictionary (.dic)
         """
 
         hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
 
         if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm = hmdir, lm = lmd_music, dict = dictd_music)
+            self.speechRec_music = ps.Decoder(
+                hmm=hmdir,
+                lm=lmd_music,
+                dict=dictd_music
+            )
+
         self.speechRec_persona = ps.Decoder(
-            hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
-        self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
+            hmm=hmdir,
+            lm=lmd_persona,
+            dict=dictd_persona
+        )
+
+        self.speechRec = ps.Decoder(
+            hmm=hmdir,
+            lm=lmd,
+            dict=dictd
+        )
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
-            Performs TTS, transcribing an audio file and returning the result.
+        Performs TTS, transcribing an audio file and returning the result.
 
-            Arguments:
-            audio_file_path -- the path to the audio file to-be transcribed
-            PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
-            MUSIC -- if True, uses the 'Music' language model and dictionary
+        Arguments:
+        audio_file_path  the path to the audio file to-be transcribed
+        PERSONA_ONLY     if True, uses the 'Persona' language model and dictionary
+        MUSIC            if True, uses the 'Music' language model and dictionary
         """
 
         wavFile = file(audio_file_path, 'rb')
@@ -80,15 +103,11 @@ class Mic:
         # TODO: Consolidate all of these variables from the next three
         # functions
         THRESHOLD_MULTIPLIER = 1.8
-        AUDIO_FILE = "passive.wav"
         RATE = 16000
         CHUNK = 1024
 
         # number of seconds to allow to establish threshold
         THRESHOLD_TIME = 1
-
-        # number of seconds to listen before forcing restart
-        LISTEN_TIME = 10
 
         # prepare recording stream
         audio = pyaudio.PyAudio()
@@ -122,8 +141,8 @@ class Mic:
 
     def passiveListen(self, PERSONA):
         """
-            Listens for PERSONA in everyday sound
-            Times out after LISTEN_TIME, so needs to be restarted
+        Listens for PERSONA in everyday sound
+        Times out after LISTEN_TIME, so needs to be restarted
         """
 
         THRESHOLD_MULTIPLIER = 1.8
@@ -234,7 +253,7 @@ class Mic:
             return self.transcribe(AUDIO_FILE)
 
         # check if no threshold provided
-        if THRESHOLD == None:
+        if THRESHOLD is None:
             THRESHOLD = self.fetchThreshold()
 
         os.system("aplay -D hw:1,0 beep_hi.wav")
@@ -287,7 +306,7 @@ class Mic:
             return self.transcribe(AUDIO_FILE, MUSIC=True)
 
         return self.transcribe(AUDIO_FILE)
-        
+
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking
         phrase = alteration.clean(phrase)

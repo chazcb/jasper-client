@@ -8,6 +8,7 @@ client/say.wav
 *.swn
 *.swo
 *.swp
+*.sublime-workspace
 server/modules/build/*
 client/build/*
 client/profile.yml

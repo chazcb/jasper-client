@@ -1,11 +1,10 @@
-import re
 import difflib
 from mpd import MPDClient
 
 
 def reconnect(func, *default_args, **default_kwargs):
     """
-        Reconnects before running
+    Reconnects before running.
     """
 
     def wrap(self, *default_args, **default_kwargs):
@@ -28,7 +27,7 @@ def reconnect(func, *default_args, **default_kwargs):
     return wrap
 
 
-class Song:
+class Song(object):
 
     def __init__(self, id, title, artist, album):
 
@@ -38,7 +37,7 @@ class Song:
         self.album = album
 
 
-class Music:
+class Music(object):
 
     client = None
     songs = []  # may have duplicates
@@ -50,7 +49,7 @@ class Music:
 
     def __init__(self):
         """
-            Prepare the client and music variables
+        Prepare the client and music variables
         """
         # prepare client
         self.client = MPDClient()
@@ -102,7 +101,7 @@ class Music:
 
         self.client.play()
 
-    #@reconnect -- this makes the function return None for some reason!
+    # @reconnect -- this makes the function return None for some reason!
     def current_song(self):
         item = self.client.playlistinfo(int(self.client.status()["song"]))[0]
         result = "%s by %s" % (item["title"], item["artist"])
@@ -140,7 +139,7 @@ class Music:
 
     def get_soup(self):
         """
-                returns the list of unique words that comprise song and artist titles
+        Returns the list of unique words that comprise song and artist titles
         """
 
         soup = []
@@ -152,16 +151,22 @@ class Music:
             soup.extend(artist_words)
 
         title_trans = ''.join(
-            chr(c) if chr(c).isupper() or chr(c).islower() else '_' for c in range(256))
-        soup = [x.decode('utf-8').encode("ascii", "ignore").upper().translate(title_trans).replace("_", "")
-                for x in soup]
+            chr(c) if chr(c).isupper() or chr(c).islower() else '_'
+            for c in range(256))
+
+        soup = [
+            x.decode('utf-8').encode(
+                "ascii", "ignore"
+            ).upper().translate(title_trans).replace("_", "")
+            for x in soup]
+
         soup = [x for x in soup if x != ""]
 
         return list(set(soup))
 
     def get_soup_playlist(self):
         """
-                returns the list of unique words that comprise playlist names
+        Returns the list of unique words that comprise playlist names
         """
 
         soup = []
@@ -170,16 +175,22 @@ class Music:
             soup.extend(name.split(" "))
 
         title_trans = ''.join(
-            chr(c) if chr(c).isupper() or chr(c).islower() else '_' for c in range(256))
-        soup = [x.decode('utf-8').encode("ascii", "ignore").upper().translate(title_trans).replace("_", "")
-                for x in soup]
+            chr(c) if chr(c).isupper() or chr(c).islower() else '_'
+            for c in range(256))
+
+        soup = [
+            x.decode('utf-8').encode(
+                "ascii", "ignore"
+            ).upper().translate(title_trans).replace("_", "")
+            for x in soup]
+
         soup = [x for x in soup if x != ""]
 
         return list(set(soup))
 
     def get_soup_separated(self):
         """
-                returns the list of PHRASES that comprise song and artist titles
+        Returns the list of PHRASES that comprise song and artist titles
         """
 
         title_soup = [song.title for song in self.songs]
@@ -188,16 +199,23 @@ class Music:
         soup = list(set(title_soup + artist_soup))
 
         title_trans = ''.join(
-            chr(c) if chr(c).isupper() or chr(c).islower() else '_' for c in range(256))
-        soup = [x.decode('utf-8').encode("ascii", "ignore").upper().translate(title_trans).replace("_", " ")
-                for x in soup]
-        soup = [re.sub(' +', ' ', x) for x in soup if x != ""]
+            chr(c) if chr(c).isupper() or chr(c).islower() else '_'
+            for c in range(256))
+
+        soup = [
+            x.decode('utf-8').encode(
+                "ascii", "ignore"
+            ).upper().translate(title_trans).replace("_", "")
+            for x in soup]
+
+        soup = [x for x in soup if x != ""]
 
         return soup
 
     def fuzzy_songs(self, query):
         """
-                Returns songs matching a query best as possible on either artist field, etc
+        Returns songs matching a query best as possible
+        on either artist field, etc.
         """
 
         query = query.upper()
@@ -228,7 +246,7 @@ class Music:
 
     def fuzzy_playlists(self, query):
         """
-                returns playlist names that match query best as possible
+        Returns playlist names that match query best as possible
         """
         query = query.upper()
         lookup = {n.upper(): n for n in self.playlists}
@@ -237,7 +255,7 @@ class Music:
 
 if __name__ == "__main__":
     """
-        Plays music and performs unit-testing
+    Plays music and performs unit-testing
     """
 
     print "Creating client"

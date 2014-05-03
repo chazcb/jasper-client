@@ -54,8 +54,7 @@ class Notifier(object):
 
     def getAllNotifications(self):
         """
-            Return a list of notifications in chronological order.
-            Note that this function is consuming, so consecutive calls
+            Return a list of notifications in chronological order. Note that this function is consuming, so consecutive calls
             will yield different results.
         """
         notifs = []

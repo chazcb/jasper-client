@@ -1,6 +1,6 @@
 import datetime
 import re
-from facebook import *
+from facebook import GraphAPIError, GraphAPI
 from app_utils import getTimezone
 
 WORDS = ["BIRTHDAY"]
@@ -8,13 +8,13 @@ WORDS = ["BIRTHDAY"]
 
 def handle(text, mic, profile):
     """
-        Responds to user-input, typically speech text, by listing the user's
-        Facebook friends with birthdays today.
+    Responds to user-input, typically speech text, by listing the user's
+    Facebook friends with birthdays today.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
-        mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone number)
+    Arguments:
+    text -- user-input, typically transcribed speech
+    mic -- used to interact with the user (for both input and output)
+    profile -- contains information related to the user (e.g., phone number)
     """
     oauth_access_token = profile['keys']["FB_TOKEN"]
 
@@ -25,7 +25,8 @@ def handle(text, mic, profile):
             "me/friends", args={'fields': 'id,name,birthday'})
     except GraphAPIError:
         mic.say(
-            "I have not been authorized to query your Facebook. If you would like to check birthdays in the future, please visit the Jasper dashboard.")
+            "I have not been authorized to query your Facebook. "
+            "If you would like to check birthdays in the future, please visit the Jasper dashboard.")
         return
     except:
         mic.say(
@@ -56,9 +57,9 @@ def handle(text, mic, profile):
 
 def isValid(text):
     """
-        Returns True if the input is related to birthdays.
+    Returns True if the input is related to birthdays.
 
-        Arguments:
-        text -- user-input, typically transcribed speech
+    Arguments:
+    text -- user-input, typically transcribed speech
     """
     return bool(re.search(r'birthday', text, re.IGNORECASE))
