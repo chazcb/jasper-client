@@ -2,7 +2,6 @@ import imaplib
 import email
 import re
 from dateutil import parser
-from app_utils import unittest
 
 WORDS = ["EMAIL", "INBOX"]
 
@@ -121,7 +120,7 @@ def handle(text, mic, profile):
             response += ". Senders include: "
             response += '...'.join(senders)
         else:
-            response += " from " + unittest[0]
+            response += " from " + unique_senders[0]
 
         mic.say(response)
 
