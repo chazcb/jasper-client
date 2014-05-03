@@ -2,10 +2,11 @@
     Manages the conversation
 """
 
-import os
 from mic import Mic
-import g2p
+
 from music import Music
+from otto import settings
+from otto.lanugage import LanguageAssets
 
 
 class MusicMode(object):
@@ -31,37 +32,17 @@ class MusicMode(object):
             "PLAYLIST"
         ]
 
-        pronounced = g2p.translateWords(original)
-        zipped = zip(original, pronounced)
-        lines = ["%s %s" % (x, y) for x, y in zipped]
-
-        with open("dictionary_spotify.dic", "w") as f:
-            f.write("\n".join(lines) + "\n")
-
-        with open("sentences_spotify.txt", "w") as f:
-            f.write("\n".join(original) + "\n")
-            f.write("<s> \n </s> \n")
-            f.close()
-
-        # make language model
-        os.system(
-            "text2idngram -vocab sentences_spotify.txt < "
-            "sentences_spotify.txt -idngram spotify.idngram"
-        )
-
-        os.system(
-            "idngram2lm -idngram spotify.idngram -vocab "
-            "sentences_spotify.txt -arpa languagemodel_spotify.lm"
-        )
+        music_assets = LanguageAssets('music', original)
+        music_assets.build()
 
         # create a new mic with the new music models
         self.mic = Mic(
-            "languagemodel.lm",
-            "dictionary.dic",
-            "languagemodel_persona.lm",
-            "dictionary_persona.dic",
-            "languagemodel_spotify.lm",
-            "dictionary_spotify.dic",
+            lmd=settings.LANGUAGE_MODEL_PATH,
+            dictd=settings.LANGUAGE_DICT_PATH,
+            lmd_persona=settings.PERSONA_LANGUAGE_MODEL_PATH,
+            dictd_persona=settings.PERSONA_LANGUAGE_DICT_PATH,
+            lmd_music=music_assets.language_model_file_path,
+            dictd_music=music_assets.dictionary_file_path,
         )
 
     def delegateInput(self, input):
@@ -184,32 +165,6 @@ if __name__ == "__main__":
         "LOUDER",
         "SOFTER"
     ]
-    pronounced = g2p.translateWords(original)
-    zipped = zip(original, pronounced)
-    lines = ["%s %s" % (x, y) for x, y in zipped]
 
-    with open("dictionary_spotify.dic", "w") as f:
-        f.write("\n".join(lines) + "\n")
-
-    with open("sentences_spotify.txt", "w") as f:
-        f.write("\n".join(original) + "\n")
-        f.write("<s> \n </s> \n")
-        f.close()
-
-    with open("sentences_spotify_separated.txt", "w") as f:
-        f.write("\n".join(music.get_soup_separated()) + "\n")
-        f.write("<s> \n </s> \n")
-        f.close()
-
-    # make language model
-    os.system(
-        "text2idngram -vocab sentences_spotify.txt < "
-        "sentences_spotify_separated.txt -idngram spotify.idngram"
-    )
-
-    os.system(
-        "idngram2lm -idngram spotify.idngram -vocab "
-        "sentences_spotify.txt -arpa languagemodel_spotify.lm"
-    )
-
-    print "Language Model and Dictionary Done"
+    music_assets = LanguageAssets('music_separated', original)
+    music_assets.build()

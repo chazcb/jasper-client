@@ -81,11 +81,11 @@ class Music(object):
     @reconnect
     def play(self, songs=False, playlist_name=False):
         """
-            Plays the current song or accepts a song to play.
+        Plays the current song or accepts a song to play.
 
-            Arguments:
-            songs -- a list of song objects
-            playlist_name -- user-defined, something like "Love Song Playlist"
+        Arguments:
+        songs -- a list of song objects
+        playlist_name -- user-defined, something like "Love Song Playlist"
         """
         if songs:
             self.client.clear()

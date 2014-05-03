@@ -64,6 +64,9 @@ class Mic(object):
             dict=dictd
         )
 
+    def play_file(self, filename):
+        os.system("aplay -D %s" % filename)
+
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
         Performs TTS, transcribing an audio file and returning the result.

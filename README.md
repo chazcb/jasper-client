@@ -1,4 +1,4 @@
-# Jasper
+# Otto
 
 A fork of the popular Jasper voice computing platform with a focus on:
 
@@ -10,9 +10,13 @@ A fork of the popular Jasper voice computing platform with a focus on:
  - Tests
 
 # Installation and Setup
-Current docs are at [jasperproject.github.io](http://jasperproject.github.io/).
+1. Grab the Jasper imagine from [jasperproject.github.io](http://jasperproject.github.io/).
+2. Clone the Otto repository into your Pi at ~/jasper (or set up the githooks to push to your Pi).
+3. Run `manage.py compile` to build initial set of language files.
+4. Run `manage.py run` to start Otto.
 
 ## Acknowledgements
+Otto is currently developed by [Charles Covey-Brandt](http://github.com/chazcb) and [Stephanie Stroud](http://github.com/stroud109) with the help of lots of contributors.
 
 Jasper is developed by [Shubhro Saha](http://www.princeton.edu/~saha/) and [Charles Marsh](http://www.princeton.edu/~crmarsh/). Both can be reached by email at [saha@princeton.edu](mailto:saha@princeton.edu) and [crmarsh@princeton.edu](mailto:crmarsh@princeton.edu) respectively.
 
