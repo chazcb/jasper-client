@@ -8,6 +8,8 @@ LANGUAGE_FOLDER = os.path.join(OTTO_PATH, os.pardir, 'assets', 'language')
 AUDIO_FOLDER = os.path.join(OTTO_PATH, os.pardir, 'assets', 'audio')
 TMP_FOLDER = os.path.join(OTTO_PATH, os.pardir, 'assets', 'tmp')
 
+HMM_DIRECTORY = '/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k'
+
 USER_PROFILE = yaml.safe_load(open(os.path.join(OTTO_PATH, 'settings', 'profile.yml'), 'r'))
 
 DEFAULT_LANGUAGE = 'default'

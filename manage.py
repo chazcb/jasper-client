@@ -3,11 +3,13 @@
 import sys
 import os
 
+
 # Include folder with ./manage.py as module.
 sys.path.insert(1, os.path.join(os.path.dirname(__file__)))
 
 from otto import settings
-
+from otto import modules
+from otto.language import LanguageModel
 
 if __name__ == '__main__':
 
@@ -21,8 +23,23 @@ if __name__ == '__main__':
 
     if command == 'compile':
         print 'Compiling language files ....'
-        from otto.vocab import compile_all
-        compile_all()
+
+        m = dir(modules)
+
+        words = []
+        for module_name in m:
+            try:
+                eval('words.extend(modules.%s.WORDS)' % module_name)
+            except:
+                pass  # module probably doesn't have the property
+
+        words = list(set(words))
+
+        # for spotify module
+        words.extend(['MUSIC', 'SPOTIFY'])
+
+        default_model = LanguageModel('default')
+        default_model.build(words)
 
     elif command == 'run':
 

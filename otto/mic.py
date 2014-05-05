@@ -1,17 +1,10 @@
 
 import os
 import json
-from wave import open as open_audio
+import wave
 import audioop
 import pyaudio
 import alteration
-
-
-# quirky bug where first import doesn't work
-try:
-    import pocketsphinx as ps
-except:
-    import pocketsphinx as ps
 
 
 class Mic(object):
@@ -19,50 +12,9 @@ class Mic(object):
     The Mic class handles all interactions with the microphone and speaker.
     """
 
-    speechRec = None
-    speechRec_persona = None
-
-    def __init__(
-        self,
-        lmd,
-        dictd,
-        lmd_persona,
-        dictd_persona,
-        lmd_music=None,
-        dictd_music=None
-    ):
-
-        """
-        Initiates the pocketsphinx instance.
-
-        Arguments:
-        lmd            filename of the full language model
-        dictd          filename of the full dictionary (.dic)
-        lmd_persona    path to 'Persona' language model file
-                       (containing, e.g., 'Jasper')
-        dictd_persona  filename of the 'Persona' dictionary (.dic)
-        """
-
-        hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
-
-        if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(
-                hmm=hmdir,
-                lm=lmd_music,
-                dict=dictd_music
-            )
-
-        self.speechRec_persona = ps.Decoder(
-            hmm=hmdir,
-            lm=lmd_persona,
-            dict=dictd_persona
-        )
-
-        self.speechRec = ps.Decoder(
-            hmm=hmdir,
-            lm=lmd,
-            dict=dictd
-        )
+    def __init__(self, default_decoder, persona_decoder):
+        self.default_decoder = default_decoder
+        self.persona_decoder = persona_decoder
 
     def play_file(self, filename):
         os.system("aplay -D %s" % filename)
@@ -81,14 +33,14 @@ class Mic(object):
         wavFile.seek(44)
 
         if MUSIC:
-            self.speechRec_music.decode_raw(wavFile)
-            result = self.speechRec_music.get_hyp()
+            self.music_decoder.decode_raw(wavFile)
+            result = self.music_decoder.get_hyp()
         elif PERSONA_ONLY:
-            self.speechRec_persona.decode_raw(wavFile)
-            result = self.speechRec_persona.get_hyp()
+            self.persona_decoder.decode_raw(wavFile)
+            result = self.persona_decoder.get_hyp()
         else:
-            self.speechRec.decode_raw(wavFile)
-            result = self.speechRec.get_hyp()
+            self.default_decoder.decode_raw(wavFile)
+            result = self.default_decoder.get_hyp()
 
         print "==================="
         print "JASPER: " + result[0]
@@ -223,7 +175,7 @@ class Mic(object):
         stream.stop_stream()
         stream.close()
         audio.terminate()
-        write_frames = open_audio(AUDIO_FILE, 'wb')
+        write_frames = wave.open(AUDIO_FILE, 'wb')
         write_frames.setnchannels(1)
         write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
         write_frames.setframerate(RATE)
@@ -240,7 +192,7 @@ class Mic(object):
 
     def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
         """
-            Records until a second of silence or times out after 12 seconds
+        Records until a second of silence or times out after 12 seconds
         """
 
         AUDIO_FILE = "active.wav"
@@ -295,7 +247,7 @@ class Mic(object):
         stream.stop_stream()
         stream.close()
         audio.terminate()
-        write_frames = open_audio(AUDIO_FILE, 'wb')
+        write_frames = wave.open(AUDIO_FILE, 'wb')
         write_frames.setnchannels(1)
         write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
         write_frames.setframerate(RATE)
