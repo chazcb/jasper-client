@@ -12,6 +12,6 @@ HMM_DIRECTORY = '/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k'
 
 USER_PROFILE = yaml.safe_load(open(os.path.join(OTTO_PATH, 'settings', 'profile.yml'), 'r'))
 
-DEFAULT_LANGUAGE = 'default'
-PERSONA_LANGUAGE = 'persona'
-MUSIC_LANGUAGE = 'music'
+DEFAULT_MODEL_NAME = 'default'
+PERSONA_MODEL_NAME = 'persona'
+MUSIC_MODEL_NAME = 'music'

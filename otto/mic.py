@@ -12,9 +12,10 @@ class Mic(object):
     The Mic class handles all interactions with the microphone and speaker.
     """
 
-    def __init__(self, default_decoder, persona_decoder):
+    def __init__(self, default_decoder, persona_decoder, music_decoder=None):
         self.default_decoder = default_decoder
         self.persona_decoder = persona_decoder
+        self.music_decoder = music_decoder
 
     def play_file(self, filename):
         os.system("aplay -D %s" % filename)

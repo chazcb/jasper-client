@@ -18,8 +18,7 @@ class LanguageModel(object):
         self.dictionary_file_path = os.path.join(settings.LANGUAGE_FOLDER, '%s_words.dict' % name)
         self.sentences_file_path = os.path.join(settings.LANGUAGE_FOLDER, '%s_sentences.txt' % name)
 
-    @property
-    def decoder(self):
+    def get_decoder(self):
         return Decoder(
             hmm=settings.HMM_DIRECTORY,
             m=self.language_model_file_path,

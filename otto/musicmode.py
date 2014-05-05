@@ -2,18 +2,15 @@
     Manages the conversation
 """
 
-from mic import Mic
-
 from music import Music
 from otto import settings
-from otto.lanugage import LanguageAssets
+from otto.lanugage import LanguageModel
 
 
 class MusicMode(object):
 
     def __init__(self, PERSONA, mic):
         self.persona = PERSONA
-        # self.mic - we're actually going to ignore the mic they passed in
         self.music = Music()
 
         # index spotify playlists into new dictionary and language models
@@ -32,18 +29,11 @@ class MusicMode(object):
             "PLAYLIST"
         ]
 
-        music_assets = LanguageAssets('music', original)
-        music_assets.build()
+        # Add the music decoder to the current mic
 
-        # create a new mic with the new music models
-        self.mic = Mic(
-            lmd=settings.LANGUAGE_MODEL_PATH,
-            dictd=settings.LANGUAGE_DICT_PATH,
-            lmd_persona=settings.PERSONA_LANGUAGE_MODEL_PATH,
-            dictd_persona=settings.PERSONA_LANGUAGE_DICT_PATH,
-            lmd_music=music_assets.language_model_file_path,
-            dictd_music=music_assets.dictionary_file_path,
-        )
+        music_model = LanguageModel(settings.MUSIC_MODEL_NAME)
+        music_model.build(original)
+        mic.music_decoder = music_model.get_decoder()
 
     def delegateInput(self, input):
 
@@ -166,5 +156,5 @@ if __name__ == "__main__":
         "SOFTER"
     ]
 
-    music_assets = LanguageAssets('music_separated', original)
-    music_assets.build()
+    music_model = LanguageModel('music_separated')
+    music_model.build(original)
