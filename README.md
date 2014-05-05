@@ -9,8 +9,20 @@ A fork of the popular Jasper voice computing platform with a focus on:
  - Portability and documentation for setup in the README
  - Tests
 
-# Installation and Setup
-1. Grab the Jasper imagine from [jasperproject.github.io](http://jasperproject.github.io/).
+# Installation and Setup for Development
+## Install PyAudio
+PyAudio is currently used for writing and reading .wav files. It's not available on pip (because internet?). If you are _not_ using a virtual environment, you can just download and install PyAudio with the C bindings included. However, if you want to install in a non-standard package location, you'll need to build PortAudio and then install PyAudio:
+1. Download and install PortAudio [http://www.portaudio.com/download.html](http://www.portaudio.com/download.html)
+    ./configure && make
+    make install # may need sudo here
+2. Download and build PyAudio [http://people.csail.mit.edu/hubert/pyaudio/compilation.html](http://people.csail.mit.edu/hubert/pyaudio/compilation.html)
+    python setup.py install
+
+## Install pocketsphinx
+
+## Install Python packages
+1. Install requirements from prod.txt (and test.txt if you want to run tests - recommended)
+2. Install PyAudio (it's not on pip) http://people.csail.mit.edu/hubert/pyaudio/#downloads
 2. Clone the Otto repository into your Pi at ~/jasper (or set up the githooks to push to your Pi).
 3. Run `manage.py compile` to build initial set of language files.
 4. Run `manage.py run` to start Otto.

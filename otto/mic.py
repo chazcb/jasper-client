@@ -1,10 +1,8 @@
 
 import os
-import json
 import wave
 import audioop
 import pyaudio
-import alteration
 
 
 class Mic(object):
@@ -262,10 +260,3 @@ class Mic(object):
             return self.transcribe(AUDIO_FILE, MUSIC=True)
 
         return self.transcribe(AUDIO_FILE)
-
-    def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
-        # alter phrase before speaking
-        phrase = alteration.clean(phrase)
-
-        os.system("espeak " + json.dumps(phrase) + OPTIONS)
-        os.system("aplay -D hw:1,0 say.wav")
