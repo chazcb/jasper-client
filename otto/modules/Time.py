@@ -1,6 +1,6 @@
 import datetime
 import re
-from app_utils import getTimezone
+from otto.modules.app_utils import getTimezone
 from semantic.dates import DateService
 
 WORDS = ["TIME"]

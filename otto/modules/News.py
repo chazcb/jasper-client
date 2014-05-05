@@ -1,7 +1,8 @@
 import feedparser
-import app_utils
 import re
 from semantic.numbers import NumberService
+from otto.modules import app_utils
+
 
 WORDS = ["NEWS", "YES", "NO", "FIRST", "SECOND", "THIRD"]
 

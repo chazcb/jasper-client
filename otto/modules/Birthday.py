@@ -1,7 +1,7 @@
 import datetime
 import re
 from facebook import GraphAPIError, GraphAPI
-from app_utils import getTimezone
+from otto.modules.app_utils import getTimezone
 
 WORDS = ["BIRTHDAY"]
 

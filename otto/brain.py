@@ -1,8 +1,7 @@
 import logging
-from modules import (
+from otto.modules import (
     Birthday,
     Gmail,
-    HN,
     Joke,
     Life,
     News,
@@ -41,7 +40,6 @@ class Brain(object):
         self.modules = [
             Birthday,
             Gmail,
-            HN,
             Joke,
             Life,
             News,
