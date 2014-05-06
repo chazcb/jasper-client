@@ -19,19 +19,15 @@ class Conversation(object):
         """Delegates user input to the handling function when activated."""
         while True:
 
-            # Print notifications until empty
-            notifications = self.notifier.getAllNotifications()
-            for notif in notifications:
-                print notif
-
             try:
                 threshold, transcribed = self.mic.passiveListen(self.persona)
-            except:
+            except Exception as e:
+                print "Exception: ", e
                 continue
 
             if threshold:
-                input = self.mic.activeListen(threshold)
-                if input:
-                    self.delegateInput(input)
+                phrase = self.mic.activeListen(threshold)
+                if phrase:
+                    self.delegateInput(phrase)
                 else:
                     self.mic.say('Pardon?')

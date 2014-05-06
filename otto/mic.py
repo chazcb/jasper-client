@@ -15,9 +15,6 @@ class Mic(object):
         self.persona_decoder = persona_decoder
         self.music_decoder = music_decoder
 
-    def play_file(self, filename):
-        os.system("aplay -D %s" % filename)
-
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
         Performs TTS, transcribing an audio file and returning the result.
@@ -210,7 +207,7 @@ class Mic(object):
         if THRESHOLD is None:
             THRESHOLD = self.fetchThreshold()
 
-        os.system("aplay -D hw:1,0 beep_hi.wav")
+        self.voice.play_beep_high()
 
         # prepare recording stream
         audio = pyaudio.PyAudio()
@@ -240,7 +237,7 @@ class Mic(object):
             if average < THRESHOLD * 0.8:
                 break
 
-        os.system("aplay -D hw:1,0 beep_lo.wav")
+        self.voice.play_beep_low()
 
         # save the audio data
         stream.stop_stream()

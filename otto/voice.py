@@ -1,11 +1,33 @@
-import os
 import json
-from otto import alteration
+import re
+import os
+
 from otto import settings
 
 WAV_FILE_NAME = 'say.wav'
 BEEP_LOW_NAME = 'beep_lo.wav'
 BEEP_HIGH_NAME = 'beep_hi.wav'
+
+
+YEAR_REGEX = re.compile(r'(\b)(\d\d)([1-9]\d)(\b)')
+
+
+def detect_years(text):
+    return YEAR_REGEX.sub('\g<1>\g<2> \g<3>\g<4>', text)
+
+
+def clean_phrase(text):
+    """
+    Manually adjust output text before it's translated into
+    actual speech by the TTS system. This is to fix minior
+    idiomatic issues, for example, that 1901 is pronounced
+    "one thousand, ninehundred and one" rather than
+    "nineteen ninety one".
+
+    Arguments:
+    text -- original speech text to-be modified
+    """
+    return detect_years(text)
 
 
 def convert_phrase_to_audio_file(self, phrase, filepath):
@@ -25,7 +47,7 @@ class Voice(object):
 
     def say(self, phrase):
         # alter phrase before speaking
-        phrase = alteration.clean(phrase)
+        phrase = clean_phrase(phrase)
         convert_phrase_to_audio_file(phrase, self.say_file_path)
         play_audio_file(self.say_file_path)
 

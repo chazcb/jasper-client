@@ -1,23 +1,15 @@
 #!/usr/bin/env python
-
 import sys
 import os
-
 
 # Include folder with ./manage.py as module.
 sys.path.insert(1, os.path.join(os.path.dirname(__file__)))
 
 from otto import settings
 from otto import modules
-from otto.language import LanguageModel
 from otto.conversation import Conversation
-
-# If we are running this 'locally' then we
-# use a faked microphone and speaker.
-if '--local' in sys.argv:
-    from otto.local_mic import Mic
-else:
-    from otto.mic import Mic
+from otto.language import LanguageModel
+from otto.mic import Mic
 
 
 if __name__ == '__main__':
