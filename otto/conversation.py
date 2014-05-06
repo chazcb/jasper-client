@@ -30,4 +30,4 @@ class Conversation(object):
                 if phrase:
                     self.delegateInput(phrase)
                 else:
-                    self.mic.say('Pardon?')
+                    self.mic.voice.say('Pardon?')

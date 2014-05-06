@@ -98,19 +98,19 @@ def handle(text, mic, profile):
 
         if isinstance(msgs, int):
             response = "You have %d unread emails." % msgs
-            mic.say(response)
+            mic.voice.say(response)
             return
 
         senders = [getSender(e) for e in msgs]
     except imaplib.IMAP4.error:
-        mic.say(
+        mic.voice.say(
             "I'm sorry. I'm not authenticated to work with your Gmail.")
         return
 
     if not senders:
-        mic.say("You have no unread emails.")
+        mic.voice.say("You have no unread emails.")
     elif len(senders) == 1:
-        mic.say("You have one unread email from " + senders[0] + ".")
+        mic.voice.say("You have one unread email from " + senders[0] + ".")
     else:
         response = "You have %d unread emails" % len(
             senders)
@@ -122,7 +122,7 @@ def handle(text, mic, profile):
         else:
             response += " from " + unique_senders[0]
 
-        mic.say(response)
+        mic.voice.say(response)
 
 
 def isValid(text):

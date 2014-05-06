@@ -9,7 +9,7 @@ BEEP_LOW_NAME = 'beep_lo.wav'
 BEEP_HIGH_NAME = 'beep_hi.wav'
 
 
-YEAR_REGEX = re.compile(r'(\b)(\d\d)([1-9]\d)(\b)')
+YEAR_REGEX = re.compile(r'(\b)(\d\d)([0-9]\d)(\b)')
 
 
 def detect_years(text):
@@ -30,12 +30,12 @@ def clean_phrase(text):
     return detect_years(text)
 
 
-def convert_phrase_to_audio_file(self, phrase, filepath):
+def convert_phrase_to_audio_file(phrase, filepath):
     os.system("espeak %s -vdefault+m3 -p 40 -s 160 --stdout > %s" % (json.dumps(phrase), filepath))
 
 
-def play_audio_file(self, filepath):
-    os.system("aplay -D hw:1,0 %s" % filepath)
+def play_audio_file(filepath):
+    os.system("aplay -D %s" % filepath)
 
 
 class Voice(object):

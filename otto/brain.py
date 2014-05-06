@@ -65,6 +65,6 @@ class Brain(object):
                     break
                 except:
                     logError()
-                    self.mic.say(
+                    self.mic.voice.say(
                         "I'm sorry. I had some trouble with that operation. Please try again later.")
                     break

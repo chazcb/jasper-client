@@ -4,6 +4,8 @@ import wave
 import audioop
 import pyaudio
 
+from otto.voice import Voice
+
 
 class Mic(object):
     """
@@ -11,6 +13,7 @@ class Mic(object):
     """
 
     def __init__(self, default_decoder, persona_decoder, music_decoder=None):
+        self.voice = Voice()
         self.default_decoder = default_decoder
         self.persona_decoder = persona_decoder
         self.music_decoder = music_decoder

@@ -24,12 +24,12 @@ def handle(text, mic, profile):
         results = graph.request(
             "me/friends", args={'fields': 'id,name,birthday'})
     except GraphAPIError:
-        mic.say(
+        mic.voice.say(
             "I have not been authorized to query your Facebook. "
             "If you would like to check birthdays in the future, please visit the Jasper dashboard.")
         return
     except:
-        mic.say(
+        mic.voice.say(
             "I apologize, there's a problem with that service at the moment.")
         return
 
@@ -52,7 +52,7 @@ def handle(text, mic, profile):
     else:
         output = "None of your friends have birthdays today."
 
-    mic.say(output)
+    mic.voice.say(output)
 
 
 def isValid(text):

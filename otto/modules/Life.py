@@ -19,7 +19,7 @@ def handle(text, mic, profile):
 
     message = random.choice(messages)
 
-    mic.say(message)
+    mic.voice.say(message)
 
 
 def isValid(text):

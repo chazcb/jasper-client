@@ -20,7 +20,7 @@ def handle(text, mic, profile):
     now = datetime.datetime.now(tz=tz)
     service = DateService()
     response = service.convertTime(now)
-    mic.say("It is %s right now." % response)
+    mic.voice.say("It is %s right now." % response)
 
 
 def isValid(text):

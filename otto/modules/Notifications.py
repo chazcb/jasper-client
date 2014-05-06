@@ -23,16 +23,16 @@ def handle(text, mic, profile):
     try:
         results = graph.request("me/notifications")
     except GraphAPIError:
-        mic.say(
+        mic.voice.say(
             "I have not been authorized to query your Facebook. "
             "If you would like to check your notifications in the future, please visit the Jasper dashboard.")
         return
     except:
-        mic.say(
+        mic.voice.say(
             "I apologize, there's a problem with that service at the moment.")
 
     if not len(results['data']):
-        mic.say("You have no Facebook notifications. ")
+        mic.voice.say("You have no Facebook notifications. ")
         return
 
     updates = []
@@ -40,7 +40,7 @@ def handle(text, mic, profile):
         updates.append(notification['title'])
 
     count = len(results['data'])
-    mic.say("You have " + str(count) +
+    mic.voice.say("You have " + str(count) +
             " Facebook notifications. " + " ".join(updates) + ". ")
 
     return

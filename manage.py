@@ -52,7 +52,7 @@ if __name__ == '__main__':
             persona_decoder=persona_model.get_decoder(),
         )
 
-        mic.say('How can I be of service?')
+        mic.voice.say('How can I be of service?')
 
         conversation = Conversation('JASPER', mic, settings.USER_PROFILE)
         conversation.handleForever()

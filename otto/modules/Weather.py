@@ -49,7 +49,7 @@ def handle(text, mic, profile):
     """
 
     if not profile['location']:
-        mic.say(
+        mic.voice.say(
             "I'm sorry, I can't seem to access that information. "
             "Please make sure that you've set your location on the dashboard.")
         return
@@ -95,9 +95,9 @@ def handle(text, mic, profile):
 
     if output:
         output = replaceAcronyms(output)
-        mic.say(output)
+        mic.voice.say(output)
     else:
-        mic.say(
+        mic.voice.say(
             "I'm sorry. I can't see that far ahead.")
 
 
