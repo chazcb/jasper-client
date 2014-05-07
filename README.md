@@ -11,14 +11,16 @@ A fork of the popular Jasper voice computing platform with a focus on:
 
 # Installation and Setup for Development
 ## Install PyAudio
-PyAudio is currently used for writing and reading .wav files. It's not available on pip (because internet?). If you are _not_ using a virtual environment, you can just download and install PyAudio with the C bindings included. However, if you want to install in a non-standard package location, you'll need to build PortAudio and then install PyAudio:
-1. Download and install PortAudio [http://www.portaudio.com/download.html](http://www.portaudio.com/download.html)
+PyAudio is currently used for writing and reading .wav files. If you are _not_ using a virtual environment, you can just download and install PyAudio with the C bindings included. However, if you want to install in a non-standard package location, you'll need to build PortAudio and then install PyAudio:
+    1. Install PortAudio with HomeBrew (recommended), or download and install [http://www.portaudio.com/download.html](http://www.portaudio.com/download.html)
     ./configure && make
-    make install # may need sudo here
-2. Download and build PyAudio [http://people.csail.mit.edu/hubert/pyaudio/compilation.html](http://people.csail.mit.edu/hubert/pyaudio/compilation.html)
+    make install
+    2. Download and build PyAudio [http://people.csail.mit.edu/hubert/pyaudio/](http://people.csail.mit.edu/hubert/pyaudio/)
     python setup.py install
 
 ## Install pocketsphinx
+Pocketsphinx is a CMU project for transcribing spoken word audio into text. Pocketsphinx is easiest to install with Homebrew. If you are using a virtual environment, you may need to set Homebrew's site-packages path in your virtual env:
+    echo '/usr/local/lib/python2.7/site-packages' > /Users/coveybrandtc/.virtualenvs/otto/lib/python2.7/site-packages/homebrew.pth
 
 ## Install Python packages
 1. Install requirements from prod.txt (and test.txt if you want to run tests - recommended)

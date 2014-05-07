@@ -4,7 +4,15 @@ import os
 
 from otto import settings
 
-WAV_FILE_NAME = 'say.wav'
+
+# ALSA system sound out settings
+ALSA_COMMAND = 'aplay -D sysdefault:CARD=ALSA {path}'
+
+# Espeak text to speach settings
+ESPEAK_COMMAND = "espeak {phrase} -vdefault+m3 -p 40 -s 160 --stdout > {path}"
+SPEACH_FILE_NAME = 'say.wav'
+
+# Some sound files that are fun to play
 BEEP_LOW_NAME = 'beep_lo.wav'
 BEEP_HIGH_NAME = 'beep_hi.wav'
 
@@ -31,17 +39,17 @@ def clean_phrase(text):
 
 
 def convert_phrase_to_audio_file(phrase, filepath):
-    os.system("espeak %s -vdefault+m3 -p 40 -s 160 --stdout > %s" % (json.dumps(phrase), filepath))
+    os.system(ESPEAK_COMMAND.format(phrase=json.dumps(phrase), path=filepath))
 
 
 def play_audio_file(filepath):
-    os.system("aplay -D %s" % filepath)
+    os.system(ALSA_COMMAND.format(path=filepath)
 
 
 class Voice(object):
 
     def __init__(self):
-        self.say_file_path = os.path.join(settings.AUDIO_FOLDER, WAV_FILE_NAME)
+        self.say_file_path = os.path.join(settings.AUDIO_FOLDER, SPEACH_FILE_NAME)
         self.beep_high_file_path = os.path.join(settings.AUDIO_FOLDER, BEEP_HIGH_NAME)
         self.beep_low_file_path = os.path.join(settings.AUDIO_FOLDER, BEEP_LOW_NAME)
 
