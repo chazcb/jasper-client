@@ -60,4 +60,4 @@ class TestPlayAudioFile(Exam, TestCase):
 
     def test_play(self):
         play_audio_file('monkey.wav')
-        self.system.assert_called_with('aplay -D monkey.wav')
+        self.system.assert_called_with('aplay -D sysdefault:CARD=ALSA monkey.wav')

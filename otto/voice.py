@@ -43,7 +43,7 @@ def convert_phrase_to_audio_file(phrase, filepath):
 
 
 def play_audio_file(filepath):
-    os.system(ALSA_COMMAND.format(path=filepath)
+    os.system(ALSA_COMMAND.format(path=filepath))
 
 
 class Voice(object):
