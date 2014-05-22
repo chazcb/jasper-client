@@ -3,6 +3,7 @@ import os
 import wave
 import audioop
 import pyaudio
+from tempfile import TemporaryFile
 
 
 THRESHOLD_MULTIPLIER = 1.8
@@ -19,7 +20,20 @@ DELAY_MULTIPLIER = 1
 LISTEN_TIME = 10
 
 
+try:
+    from pocketsphinx import Decoder
+except:
+    from pocketsphinx import Decoder
+
+
 class Mic(object):
+
+    def __init__(self):
+
+        self.decoder = Decoder(
+            lm='assets/language/onset.lm',
+            dict='assets/language/onset.dict',
+        )
 
     def score_audio(self, data):
         """
@@ -29,6 +43,10 @@ class Mic(object):
         rms = audioop.rms(data, 2)
         score = rms / 3
         return score
+
+    def transcribe(self, frames):
+        self.decoder.decode_raw(frames)
+        return self.decoder.get_hyp()
 
     def passive_listen(self, onset_utterance):
         """
@@ -97,9 +115,11 @@ class Mic(object):
 
         audio.terminate()
 
-        print ''.join(frames)
+        temp = TemporaryFile()
+        temp.writelines(''.join(frames))
+        temp.seek(0)
 
-        return True
+        return self.transcribe(temp)
 
         # # save the audio data
         # stream.stop_stream()
