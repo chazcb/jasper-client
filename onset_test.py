@@ -4,10 +4,12 @@ from otto.mic import Mic
 m = Mic()
 
 
-for _ in xrange(100):
-    print _
-    disturbance = m.passive_listen('computer')
+if __name__ == "__main__":
+    for _ in xrange(100):
+        print _
+        transcribed = m.start_listening('ok computer')
 
-    if disturbance:
-        print disturbance
-        break
+        if transcribed:
+            print "*" * 20
+            print transcribed
+            print "*" * 20
