@@ -1,11 +1,15 @@
-import pygst
-pygst.require('0.10')
+from otto.mic import Mic
 
-import gst
+
+m = Mic()
+
 
 if __name__ == "__main__":
+    for _ in xrange(100):
+        print _
+        transcribed = m.start_listening('ok computer')
 
-    pipeline = gst.parse_launch(
-        'autoaudiosrc ! audioconvert ! audioresample '
-        + '! vader name=vad auto-threshold=true '
-        + '! pocketsphinx name=asr ! fakesink')
+        if transcribed:
+            print "*" * 20
+            print transcribed
+            print "*" * 20

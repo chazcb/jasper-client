@@ -17,29 +17,28 @@ We tried really hard to reduce dependencies and make this application installabl
 
 Because if you are on a Mac, you should use Homebrew [http://brew.sh/](http://brew.sh/).
 
-### Install the Python binding for GStreamer
+### Install PortAudio
+We'll use portaudio to access the system's soundcard.
 
-This is what we'll use to record, compress, and play audio files. GStreamer requires the Quartz framework, you'll have to grab it first before installing: `brew install gst-python010 gst-plugins-good010 gst-plugins-ugly010`
+    brew install portaudio
+
+### Install PyAudio
+PyAudio has a convenient installer here [http://people.csail.mit.edu/hubert/pyaudio/](http://people.csail.mit.edu/hubert/pyaudio/). However, the installer ignores standard paths and will instead put the PyAudio python lib as well as the C bindings into the system's built-in site-packages folder. On 10.8, this is in `/Library/Python/2.7/site-packages`. Go ahead and install anyways. We'll use this path later when we set up our virtual environment.
 
 ### Install CMU Pocket Sphinx
 
 Pocketsphinx is what we'll be using to convert spoken word audio to text. It runs the conversion of speach-to-text _offline_. We'll be using this feature for detection of our onset phrase (defaults to "ok computer"). Install with `brew install cmu-pocketsphinx`.
 
-Note: we are going to be using two gstreamer plugins from the Pocket Sphinx: 'pocketsphinx' and 'vader'. At compile time of CMU Pocket Sphinx, you'll need to make sure the libxml2 is available in your package path _or these plugins will silently fail to install_. You can check for libxml2 by running
-
-    pkg-config --libs libxml-2.0
-
-The command should result in output something like `-L/usr/local/Cellar/libxml2/2.9.1/lib -lxml2`. If it doesn't, take a look online for the latest way to link Homebrew's libxml2 to your package path.
-
 ### Using a virtual environment
-If you want to use a virtualenv for the pip installable packages (recommended), you'll need to reference your Homebrew installed site-packages in the site-packages folder of your virtual environment. To do this:
+If you want to use a virtualenv for the pip installable packages (recommended), you'll need to reference your Homebrew installed site-packages in the site-packages folder of your virtual environment. Similarly, we'll need to reference the PyAudio installed library and bindings. To do this:
 
-1. Create a virtual environment and find the site-packages folder, then
-2. Create a `homebrew.pth` path file that references Brew's site-packages folder, for instance:
+1. Create a virtual environment, and then
+2. Create `.pth` path files that references the external site-packages:
 
     echo '/usr/local/lib/python2.7/site-packages' > $VIRTUAL_ENV/lib/python2.7/site-packages/homebrew.pth
+    echo '/Library/Python/2.7/site-packages' > $VIRTUAL_ENV/lib/python2.7/site-packages/sys.pth
 
-### Install Python packages
+### Install required Python packages
 Finally, you can run `pip install -r requirements.txt`
 
 ## Acknowledgements
