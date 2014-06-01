@@ -1,6 +1,6 @@
 # Otto
 
-A fork of the popular Jasper voice computing platform with a focus on:
+A fork of the Jasper voice computing platform with a focus on:
 
  - Decoupling audio input processing, voice output and conversation handlers
  - Removal of features not required for the above to run (wifi setup, sudo, etc.)
@@ -9,28 +9,41 @@ A fork of the popular Jasper voice computing platform with a focus on:
  - Portability and documentation for setup in the README
  - Tests
 
-# Installation and Setup for Development
-## Install PyAudio
-PyAudio is currently used for writing and reading .wav files. If you are _not_ using a virtual environment, you can just download and install PyAudio with the C bindings included. However, if you want to install in a non-standard package location, you'll need to build PortAudio and then install PyAudio:
-    1. Install PortAudio with HomeBrew (recommended), or download and install [http://www.portaudio.com/download.html](http://www.portaudio.com/download.html)
-    ./configure && make
-    make install
-    2. Download and build PyAudio [http://people.csail.mit.edu/hubert/pyaudio/](http://people.csail.mit.edu/hubert/pyaudio/)
-    python setup.py install
+## Installation for development
 
-## Install pocketsphinx
-Pocketsphinx is a CMU project for transcribing spoken word audio into text. Pocketsphinx is easiest to install with Homebrew. If you are using a virtual environment, you may need to set Homebrew's site-packages path in your virtual env:
-    echo '/usr/local/lib/python2.7/site-packages' > /Users/coveybrandtc/.virtualenvs/otto/lib/python2.7/site-packages/homebrew.pth
+We tried really hard to reduce dependencies and make this application installable inside a virtualenv only, but because of the large number of C-bindings and non-pip packages, it ends up being easier (sadly) to install requirements in system wide packages. For developing on a Mac:
 
-## Install Python packages
-1. Install requirements from prod.txt (and test.txt if you want to run tests - recommended)
-2. Install PyAudio (it's not on pip) http://people.csail.mit.edu/hubert/pyaudio/#downloads
-2. Clone the Otto repository into your Pi at ~/jasper (or set up the githooks to push to your Pi).
-3. Run `manage.py compile` to build initial set of language files.
-4. Run `manage.py run` to start Otto.
+### Install Homebrew
+
+Because if you are on a Mac, you should use Homebrew [http://brew.sh/](http://brew.sh/).
+
+### Install the Python binding for GStreamer
+
+This is what we'll use to record, compress, and play audio files. GStreamer requires the Quartz framework, you'll have to grab it first before installing: `brew install gst-python010 gst-plugins-good010 gst-plugins-ugly010`
+
+### Install CMU Pocket Sphinx
+
+Pocketsphinx is what we'll be using to convert spoken word audio to text. It runs the conversion of speach-to-text _offline_. We'll be using this feature for detection of our onset phrase (defaults to "ok computer"). Install with `brew install cmu-pocketsphinx`.
+
+Note: we are going to be using two gstreamer plugins from the Pocket Sphinx: 'pocketsphinx' and 'vader'. At compile time of CMU Pocket Sphinx, you'll need to make sure the libxml2 is available in your package path _or these plugins will silently fail to install_. You can check for libxml2 by running
+
+    pkg-config --libs libxml-2.0
+
+The command should result in output something like `-L/usr/local/Cellar/libxml2/2.9.1/lib -lxml2`. If it doesn't, take a look online for the latest way to link Homebrew's libxml2 to your package path.
+
+### Using a virtual environment
+If you want to use a virtualenv for the pip installable packages (recommended), you'll need to reference your Homebrew installed site-packages in the site-packages folder of your virtual environment. To do this:
+
+1. Create a virtual environment and find the site-packages folder, then
+2. Create a `homebrew.pth` path file that references Brew's site-packages folder, for instance:
+
+    echo '/usr/local/lib/python2.7/site-packages' > $VIRTUAL_ENV/lib/python2.7/site-packages/homebrew.pth
+
+### Install Python packages
+Finally, you can run `pip install -r requirements.txt`
 
 ## Acknowledgements
-Otto is currently developed by [Charles Covey-Brandt](http://github.com/chazcb) and [Stephanie Stroud](http://github.com/stroud109) with the help of lots of contributors.
+Otto is developed by [Charles Covey-Brandt](http://github.com/chazcb) and [Stephanie Stroud](http://github.com/stroud109) with the help of lots of contributors.
 
 Jasper is developed by [Shubhro Saha](http://www.princeton.edu/~saha/) and [Charles Marsh](http://www.princeton.edu/~crmarsh/). Both can be reached by email at [saha@princeton.edu](mailto:saha@princeton.edu) and [crmarsh@princeton.edu](mailto:crmarsh@princeton.edu) respectively.
 
@@ -40,7 +53,7 @@ Jasper has recieved contributions by:
 - [FRITZ|FRITZ](http://www.fritztech.net) ( [fritz@fritztech.net](mailto:fritz@fritztech.net) )
 - [Exadrid](https://github.com/Exadrid)
 
-## License
+## Jasper Project License
 
 Jasper is released under the MIT license, a permissive free software license that lets you do anything you want with the source code, as long as you provide back attribution and ["don't hold \[us\] liable"](http://choosealicense.com). Note that this licensing only refers to the Jasper client code (i.e.,  the code on GitHub) and not to the disk image itself (i.e., the code on SourceForge).
 

@@ -6,20 +6,16 @@ from contextlib import contextmanager
 from collections import deque
 
 
-THRESHOLD_MULTIPLIER = 1.8
-AUDIO_FILE = "passive.wav"
+THRESHOLD_MULTIPLIER = 2.8
 RATE = 16000
 CHUNK = 1024
-
-# number of seconds to allow to establish threshold
-THRESHOLD_TIME = 1
-
-DELAY_MULTIPLIER = 1
+FPS = RATE / CHUNK
 
 # number of seconds to listen before forcing restart
 LISTEN_TIME = 10
 
-CONFIDENCE_THRESHOLD = .85
+# number of frames to average for threshold when checking if phrase has ended
+LISTEN_SILENCE_TIMEOUT = 1.5
 
 try:
     import pocketsphinx as ps
@@ -91,7 +87,7 @@ class Mic(object):
                 if score > threshold:
                     return [current_frame] + [stream.read(CHUNK) for _ in xrange(RATE / CHUNK * buffer_time)]
 
-    def get_local_threshold(self, samples=30):
+    def get_local_threshold(self, samples=10):
         total_score = 0
         with open_read_stream() as stream:
             for _ in xrange(samples):
@@ -125,6 +121,7 @@ class Mic(object):
 
         # Get local threshold
         local_threshold = self.get_local_threshold()
+        play_file('assets/audio/beep_hi.wav')
 
         # Start a listener for audio frames above threshold
         onset_frames = self.listen_until(local_threshold)
@@ -143,16 +140,13 @@ class Mic(object):
             return self.transcribe_with(phrase_frames, self.decoder)
 
     def record_until(self, threshold):
-        """
-        Records until a second of silence or times out after 12 seconds
-        """
         print 'Recording until under', threshold
         with open_read_stream() as stream:
 
             frames = []
-            scores = deque(maxlen=15)
+            scores = deque(maxlen=FPS * LISTEN_SILENCE_TIMEOUT)
 
-            for _ in xrange(0, RATE / CHUNK * LISTEN_TIME):
+            for _ in xrange(0, FPS * LISTEN_TIME):
 
                 data = stream.read(CHUNK)
                 score = self.score_audio(data)
@@ -162,9 +156,9 @@ class Mic(object):
 
                 print 'Recording', _, score
 
-                if len(scores) > 14:
-                    average = sum(scores) / float(len(scores))
-                    if average < threshold * 0.8:
+                if len(scores) >= FPS * LISTEN_SILENCE_TIMEOUT:
+                    average = sum(scores) / float(FPS * LISTEN_SILENCE_TIMEOUT)
+                    if average < threshold:
                         break
 
         return frames
