@@ -1,10 +1,10 @@
-from otto.mic import Mic
+from otto.mic import OnsetMic
 from otto.brain import Brain
 
 
 if __name__ == "__main__":
-    m = Mic()
+    m = OnsetMic()
     b = Brain()
 
-    frames, _ = m.get_disturbance()
+    frames = m.get_disturbance()
     print b.transcribe(frames)
