@@ -1,164 +1,197 @@
-import wave
 import audioop
 import pyaudio
-from tempfile import TemporaryFile
-from contextlib import contextmanager
+
 from collections import deque
+from contextlib import contextmanager
+
+from otto.settings import (
+    # FPS,
+    # LISTEN_SILENCE_TIMEOUT,
+    # LISTEN_TIME,
+    # THRESHOLD_MULTIPLIER,
+    FRAMES_PER_BUFFER,
+    RATE,
+)
 
 
-THRESHOLD_MULTIPLIER = 2.8
-RATE = 16000
-CHUNK = 1024
-FPS = RATE / CHUNK
+class AudioReader(object):
 
-# number of seconds to listen before forcing restart
-LISTEN_TIME = 10
+    def __init__(self):
+        self.audio = pyaudio.PyAudio()
+        self.stream = self.audio.open(
+            format=pyaudio.paInt16,
+            channels=1,
+            rate=RATE,
+            input=True,
+            frames_per_buffer=FRAMES_PER_BUFFER,
+        )
 
-# number of frames to average for threshold when checking if phrase has ended
-LISTEN_SILENCE_TIMEOUT = 1.5
+    def close(self):
+        self.stream.stop_stream()
+        self.stream.close()
+        self.audio.terminate()
 
-try:
-    import pocketsphinx as ps
-except:
-    import pocketsphinx as ps
+    def score(self, frames):
+        """
+        Returns the root-mean-square (power) of the audio signal.
+        """
+        return audioop.rms(frames, 2)
 
-
-audio = pyaudio.PyAudio()
-
-
-def play_file(file_path):
-    wf = wave.open(file_path, 'rb')
-
-    stream = audio.open(
-        format=audio.get_format_from_width(wf.getsampwidth()),
-        channels=wf.getnchannels(),
-        rate=wf.getframerate(),
-        output=True,
-    )
-
-    # read data
-    data = wf.readframes(CHUNK)
-
-    # play stream (3)
-    while data != '':
-        stream.write(data)
-        data = wf.readframes(CHUNK)
-
-    wf.close()
-    stream.stop_stream()
-    stream.close()
+    def next(self):
+        frames = self.stream.read(FRAMES_PER_BUFFER)
+        return frames, self.score(frames)
 
 
 @contextmanager
-def open_read_stream():
-    stream = audio.open(
-        format=pyaudio.paInt16,
-        channels=1,
-        rate=RATE,
-        input=True,
-        frames_per_buffer=CHUNK,
-    )
-
-    yield stream
-
-    stream.stop_stream()
-    stream.close()
+def audio_reader():
+    """
+    Open a new PortAudio session for input.
+    """
+    reader = AudioReader()
+    yield reader
+    reader.close()
 
 
 class Mic(object):
 
-    def __init__(self):
-
-        self.onset_decoder = ps.Decoder(
-            lm='assets/language/onset.lm',
-            dict='assets/language/onset.dict',
-            kws='computer'
-        )
-
-        self.decoder = ps.Decoder()
-
-    def listen_until(self, threshold, wait_time=10, buffer_time=1):
-        print 'Listening for disturbance over', threshold
-        with open_read_stream() as stream:
-            for _ in xrange(RATE / CHUNK * wait_time):
-                current_frame = stream.read(CHUNK)
-                score = self.score_audio(current_frame)
-                print 'Listening', _, score
-                if score > threshold:
-                    return [current_frame] + [stream.read(CHUNK) for _ in xrange(RATE / CHUNK * buffer_time)]
-
-    def get_local_threshold(self, samples=10):
-        total_score = 0
-        with open_read_stream() as stream:
-            for _ in xrange(samples):
-                total_score += self.score_audio(stream.read(CHUNK))
-        return (total_score / samples) * THRESHOLD_MULTIPLIER
-
-    def score_audio(self, data):
+    def get_disturbance(self, tolerance=.7):
         """
-        Returns the root-mean-square (power) of the audio signal.
+        oldest ******** | ---- newest
+                  c1       c2
+
+        `previous_score` is the rms over c1 + 3 std deviations of c2.
+
+        If the current rms is greater than the mean of the previous scores,
+        we increment our disturbance counter. Otherwise we decrement the counter.
+
+        At any point, if the counter is greater than half the number
+        of total frames we are measuring, we consider it to be a disturbance!
         """
 
-        rms = audioop.rms(data, 2)
-        score = rms / 3
-        return score
+        # Keep a 2 second audio buffer at all times.
+        frames_buffer = deque(maxlen=30)
 
-    def transcribe_with(self, frames, decoder):
-        tmp_file = TemporaryFile()
-        tmp_file.writelines(''.join(frames))
-        tmp_file.seek(0)
-        decoder.decode_raw(tmp_file)
-        tmp_file.close()
-        return decoder.get_hyp()
+        prev_buffer = deque(maxlen=8)
+        curr_buffer = deque(maxlen=4)
+        disturbances = 0
 
-    def start_listening(self, onset_phrase):
+        with audio_reader() as reader:
 
-        onset_frames = None
-        phrase_frames = None
+            # First, we fill our score buffers with the current
+            # ambient noise levels.
+            prev_buffer.extendleft(reader.next()[1] for _ in xrange(8))
+            curr_buffer.extendleft(reader.next()[1] for _ in xrange(4))
 
-        # First, uppercase our onset phrase for consistency.
-        onset_phrase = onset_phrase.upper()
+            recording_disturbance = False
 
-        # Get local threshold
-        local_threshold = self.get_local_threshold()
-        play_file('assets/audio/beep_hi.wav')
+            while True:
+                frames, current_score = reader.next()
+                frames_buffer.append(frames)
 
-        # Start a listener for audio frames above threshold
-        onset_frames = self.listen_until(local_threshold)
+                # Rotate oldest current score into the previous
+                # score deque.
+                prev_buffer.appendleft(curr_buffer.pop())
+                curr_buffer.appendleft(current_score)
 
-        # If we got something above the threshold, let's check
-        # to see if it contains our onset phrase.
-        if onset_frames:
-            onset_hyp = self.transcribe_with(onset_frames, self.onset_decoder)
+                previous_rms = sum(prev_buffer) / 8.0
 
-            if onset_phrase in onset_hyp[0].upper():
-                play_file('assets/audio/beep_hi.wav')
-                phrase_frames = self.record_until(local_threshold)
-                play_file('assets/audio/beep_lo.wav')
+                if current_score * tolerance > previous_rms:
+                    disturbances += 1
+                elif disturbances > 0:
+                    disturbances -= 1
 
-        if phrase_frames:
-            return self.transcribe_with(phrase_frames, self.decoder)
+                # If more than half of our frames have loudness
+                # then we have a disturbance!
+                if disturbances > 5:
+                    recording_disturbance = True
 
-    def record_until(self, threshold):
-        print 'Recording until under', threshold
-        with open_read_stream() as stream:
+                print disturbances, '*' if recording_disturbance else ''
 
-            frames = []
-            scores = deque(maxlen=FPS * LISTEN_SILENCE_TIMEOUT)
+                # Finally, if we're recording a disturbance and we have no
+                # more frames w/ disturbances, we return our recorded frames.
+                if recording_disturbance and disturbances == 0:
+                    return ''.join(frames_buffer), current_score
 
-            for _ in xrange(0, FPS * LISTEN_TIME):
+                # # print curr_buffer
+                # # print prev_buffer
+                # print "*" * 8
+                # print sum(prev_buffer) / 4.0
+                # print  * tolerance
 
-                data = stream.read(CHUNK)
-                score = self.score_audio(data)
+                # if (sum(curr_buffer) / 8.0) * tolerance > sum(prev_buffer) / 4.0:
 
-                frames.append(data)
-                scores.append(score)
+                # # scores_buffer.appendleft(current_score)
 
-                print 'Recording', _, score
+                # We want to detect a disturbance if the average of the
+                # last 1 second is greater than the average
+                # for the previous 2 seconds (by some tolerance), and
 
-                if len(scores) >= FPS * LISTEN_SILENCE_TIMEOUT:
-                    average = sum(scores) / float(FPS * LISTEN_SILENCE_TIMEOUT)
-                    if average < threshold:
-                        break
+                # if len(frames_buffer) >= 12:
 
-        return frames
+                    # thresh_buffer.appendleft(current_score)
+
+                    # p = percentile(list(scores_buffer), 95)
+
+                    # rolling_score = sum(scores_buffer) / float(len(scores_buffer))
+
+                    # print p, current_score * tolerance
+
+                    # if p < current_score * tolerance:
+
+                # tolerance = max(scores_buffer) - min(scores_buffer)
+                # print "*" * 4
+                # print tolerance
+                # print sum(scores_buffer) / float(len(scores_buffer)) - tolerance
+                # print score
+
+                # # If current energy / previous (or rolling) energy > tolerance
+
+        # print 'DONE yay'
+                # if sum(scores_buffer) / float(len(scores_buffer)) - tolerance < score:
+
+
+    # def listen_until(self, threshold, wait_time=10, buffer_time=1):
+
+    #     scores = deque(maxlen=FPS * LISTEN_SILENCE_TIMEOUT)
+
+    #         for _ in xrange(FPS * wait_time):
+    #             frames = reader.next()
+    #             score = self.score_audio(frames)
+    #             print 'Listening', _, score
+    #             if score > threshold:
+    #                 return [frames] + [
+    #                     reader.next()
+    #                     for _ in xrange(FPS * buffer_time)
+    #                 ]
+
+    # def get_local_threshold(self, samples=10):
+    #     total_score = 0
+    #     with audio_reader() as stream:
+    #         for _ in xrange(samples):
+    #             total_score += self.score_audio(stream.next())
+    #     return (total_score / samples) * THRESHOLD_MULTIPLIER
+
+
+    # def record_until(self, threshold):
+    #     print 'Recording until under', threshold
+    #     with audio_reader() as stream:
+
+    #         frames = []
+    #         scores = deque(maxlen=FPS * LISTEN_SILENCE_TIMEOUT)
+
+    #         for _ in xrange(0, FPS * LISTEN_TIME):
+
+    #             data = stream.next()
+    #             score = self.score_audio(data)
+
+    #             frames.append(data)
+    #             scores.append(score)
+
+    #             print 'Recording', _, score
+
+    #             if len(scores) >= FPS * LISTEN_SILENCE_TIMEOUT:
+    #                 average = sum(scores) / float(FPS * LISTEN_SILENCE_TIMEOUT)
+    #                 if average < threshold:
+    #                     break
+
+    #     return frames

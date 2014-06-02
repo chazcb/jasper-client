@@ -1,15 +1,10 @@
 from otto.mic import Mic
-
-
-m = Mic()
+from otto.brain import Brain
 
 
 if __name__ == "__main__":
-    for _ in xrange(100):
-        print _
-        transcribed = m.start_listening('ok computer')
+    m = Mic()
+    b = Brain()
 
-        if transcribed:
-            print "*" * 20
-            print transcribed
-            print "*" * 20
+    frames, _ = m.get_disturbance()
+    print b.transcribe(frames)
