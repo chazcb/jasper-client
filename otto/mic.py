@@ -1,6 +1,8 @@
 import audioop
 import pyaudio
 
+import numpy as np
+
 from collections import deque
 from contextlib import contextmanager
 
@@ -54,7 +56,7 @@ def audio_reader():
 
 class Mic(object):
 
-    def get_disturbance(self, tolerance=.7):
+    def get_disturbance(self):
         """
         oldest ******** | ---- newest
                   c1       c2
@@ -67,49 +69,40 @@ class Mic(object):
         At any point, if the counter is greater than half the number
         of total frames we are measuring, we consider it to be a disturbance!
         """
-
         # Keep a 2 second audio buffer at all times.
-        frames_buffer = deque(maxlen=30)
+        sample_length = 30
+        frames_buffer = deque(maxlen=sample_length)
 
-        prev_buffer = deque(maxlen=8)
-        curr_buffer = deque(maxlen=4)
-        disturbances = 0
+        subsequent_disturbances = 0
+        recording_disturbance = False
 
         with audio_reader() as reader:
 
-            # First, we fill our score buffers with the current
-            # ambient noise levels.
-            prev_buffer.extendleft(reader.next()[1] for _ in xrange(8))
-            curr_buffer.extendleft(reader.next()[1] for _ in xrange(4))
-
-            recording_disturbance = False
+            ambience = np.array([reader.next()[1] for _ in xrange(sample_length)])
+            mean, stdv = np.mean(ambience), np.std(ambience)
+            threshold = mean + (3 * stdv)
 
             while True:
                 frames, current_score = reader.next()
                 frames_buffer.append(frames)
 
-                # Rotate oldest current score into the previous
-                # score deque.
-                prev_buffer.appendleft(curr_buffer.pop())
-                curr_buffer.appendleft(current_score)
+                if current_score > threshold:
+                    subsequent_disturbances += 1
+                elif subsequent_disturbances > 0:
+                    # Falloff by half
+                    subsequent_disturbances -= 1
 
-                previous_rms = sum(prev_buffer) / 8.0
-
-                if current_score * tolerance > previous_rms:
-                    disturbances += 1
-                elif disturbances > 0:
-                    disturbances -= 1
-
-                # If more than half of our frames have loudness
-                # then we have a disturbance!
-                if disturbances > 5:
+                # If we have more than a half-second of audio disturbances
+                # recorded in a row, then start recording.
+                if subsequent_disturbances > 7:
+                    subsequent_disturbances = 7
                     recording_disturbance = True
 
-                print disturbances, '*' if recording_disturbance else ''
+                print subsequent_disturbances, '*' if recording_disturbance else ''
 
                 # Finally, if we're recording a disturbance and we have no
-                # more frames w/ disturbances, we return our recorded frames.
-                if recording_disturbance and disturbances == 0:
+                # more frames w/ subsequent_disturbances, we return our recorded frames.
+                if recording_disturbance and subsequent_disturbances == 0:
                     return ''.join(frames_buffer), current_score
 
                 # # print curr_buffer
