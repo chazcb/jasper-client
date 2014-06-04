@@ -1,5 +1,6 @@
 import audioop
 import pyaudio
+import logging
 
 import numpy as np
 
@@ -59,7 +60,7 @@ class AudioScorer(object):
     def __init__(self, frames=[], length=15):
         self.length = length
         self.scores = deque(map(self.calc_score, frames), maxlen=length)
-        self.threshold = 256
+        self.threshold = 256  # a "sensible" starting threshold
 
     def calc_score(self, frames):
         return audioop.rms(frames, 2)
@@ -105,17 +106,15 @@ class OnsetMic(object):
                 self.frames.append(frames)
 
                 score, has_disturbance = self.scorer.add(frames)
-                counter += 1 if has_disturbance else -1 if counter > 0 else 0
 
-                # If we have more than 7 frames of audio disturbances  in
-                # a row (a half second), then we should start recording.
                 if counter > 7:
+                    logging.info('Listening ...')
                     recording = True
-                    # counter = 7
+                elif has_disturbance:
+                    counter += 1
 
-                print score, has_disturbance, counter
-
-                # print 'r' if recording else '-', '+' if has_disturbance else '-', counter
+                if recording and counter > 0:
+                    counter -= 1
 
                 # Finally, if we're recording a disturbance and we have no
                 # more frames w/ counter, we return our recorded frames.
