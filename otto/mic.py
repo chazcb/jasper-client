@@ -108,7 +108,7 @@ class OnsetMic(object):
                 score, has_disturbance = self.scorer.add(frames)
 
                 if counter > 7:
-                    logging.info('Listening ...')
+                    logging.info('...')
                     recording = True
                 elif has_disturbance:
                     counter += 1
@@ -118,29 +118,27 @@ class OnsetMic(object):
 
                 # Finally, if we're recording a disturbance and we have no
                 # more frames w/ counter, we return our recorded frames.
-                if recording and counter == 0:
+                if recording and counter < 1:
                     return ''.join(self.frames)
 
-    # def record_until(self, threshold):
-    #     print 'Recording until under', threshold
-    #     with audio_reader() as stream:
+    def get_phrase(self):
 
-    #         frames = []
-    #         scores = deque(maxlen=FPS * LISTEN_SILENCE_TIMEOUT)
+        phrase = []
+        counter = 30  # give us a full 2 seconds of time to start
 
-    #         for _ in xrange(0, FPS * LISTEN_TIME):
+        with audio_reader() as reader:
+            logging.info('Yes?')
+            while True:
+                frames = reader.next()
+                phrase.append(frames)
 
-    #             data = stream.next()
-    #             score = self.score_audio(data)
+                score, has_disturbance = self.scorer.add(frames)
 
-    #             frames.append(data)
-    #             scores.append(score)
+                if counter < 15 and has_disturbance:
+                    logging.info('Go on ...')
+                    counter = 15
+                else:
+                    counter -= 1
 
-    #             print 'Recording', _, score
-
-    #             if len(scores) >= FPS * LISTEN_SILENCE_TIMEOUT:
-    #                 average = sum(scores) / float(FPS * LISTEN_SILENCE_TIMEOUT)
-    #                 if average < threshold:
-    #                     break
-
-    #     return frames
+                if counter < 1:
+                    return ''.join(phrase)

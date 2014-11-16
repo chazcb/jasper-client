@@ -54,7 +54,9 @@ class Brain(object):
         """
 
         self.decoder = ps.Decoder(
-            logfn='/dev/null'
+            # lm='assets/language/onset.lm',
+            # dict='assets/language/onset.dict',
+            logfn='/dev/null',
         )
 
     def transcribe(self, data):

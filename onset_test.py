@@ -12,7 +12,11 @@ if __name__ == "__main__":
     b = Brain()
 
     while True:
-        frames = m.get_disturbance()
-        hypothesis = b.transcribe(frames)
-        if hypothesis[0]:
-            logging.info('Heard "%s"', hypothesis[0])
+        onset_frames = m.get_disturbance()
+        onset = b.transcribe(onset_frames)
+
+        if 'computer' in onset[0].lower():
+            phrase_frames = m.get_phrase()
+            phrase = b.transcribe(phrase_frames)
+
+            logging.info('Heard "%s"', phrase[0])
