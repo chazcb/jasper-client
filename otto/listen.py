@@ -1,51 +1,11 @@
 import audioop
-import pyaudio
 import logging
-
 import numpy as np
 
 from collections import deque
-from contextlib import contextmanager
-
-from otto.settings import (
-    # FPS,
-    # LISTEN_SILENCE_TIMEOUT,
-    # LISTEN_TIME,
-    # THRESHOLD_MULTIPLIER,
-    FRAMES_PER_BUFFER,
-    RATE,
-)
 
 
-class AudioReader(object):
-
-    def __init__(self):
-        self.audio = pyaudio.PyAudio()
-        self.stream = self.audio.open(
-            format=pyaudio.paInt16,
-            channels=1,
-            rate=RATE,
-            input=True,
-            frames_per_buffer=FRAMES_PER_BUFFER,
-        )
-
-    def close(self):
-        self.stream.stop_stream()
-        self.stream.close()
-        self.audio.terminate()
-
-    def next(self):
-        return self.stream.read(FRAMES_PER_BUFFER)
-
-
-@contextmanager
-def audio_reader():
-    """
-    Open a new PortAudio session for input.
-    """
-    reader = AudioReader()
-    yield reader
-    reader.close()
+log = logging.getLogger(__name__)
 
 
 class AudioScorer(object):
@@ -54,7 +14,6 @@ class AudioScorer(object):
     audio frames where:
         - `score` is the root mean square of the audio frames, and
         - `threshold` = mean(scores) + (3 * stdv(scores))
-
     """
 
     def __init__(self, frames=[], length=15):
@@ -87,9 +46,10 @@ class AudioScorer(object):
         return score, False
 
 
-class OnsetMic(object):
+class Listener(object):
 
-    def __init__(self):
+    def __init__(self, mic):
+        self.mic = mic
 
         # We keep 30 frames of audio (2 seconds) at all times.
         self.frames = deque(maxlen=30)
@@ -100,15 +60,15 @@ class OnsetMic(object):
         recording = False
         counter = 0
 
-        with audio_reader() as reader:
+        with self.mic() as mic:
             while True:
-                frames = reader.next()
+                frames = mic.next()
                 self.frames.append(frames)
 
                 score, has_disturbance = self.scorer.add(frames)
 
                 if counter > 7:
-                    logging.info('...')
+                    log.info('...')
                     recording = True
                 elif has_disturbance:
                     counter += 1
@@ -126,16 +86,16 @@ class OnsetMic(object):
         phrase = []
         counter = 30  # give us a full 2 seconds of time to start
 
-        with audio_reader() as reader:
-            logging.info('Yes?')
+        with self.mic() as mic:
+            log.info('Yes?')
             while True:
-                frames = reader.next()
+                frames = mic.next()
                 phrase.append(frames)
 
                 score, has_disturbance = self.scorer.add(frames)
 
                 if counter < 15 and has_disturbance:
-                    logging.info('Go on ...')
+                    log.info('Go on ...')
                     counter = 15
                 else:
                     counter -= 1

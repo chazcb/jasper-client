@@ -1,58 +1,32 @@
 #!/usr/bin/env python
 import sys
 import os
+import logging
 
 # Include folder with ./manage.py as module.
 sys.path.insert(1, os.path.join(os.path.dirname(__file__)))
 
-from otto import settings
-from otto import modules
-from otto.conversation import Conversation
-from otto.language import LanguageModel
-from otto.mic import Mic
+from otto.contrib.mic.pyaudio import mic
+from otto.contrib.transcribe.psphinx import Brain
+from otto.listen import Listener
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 if __name__ == '__main__':
 
-    try:
-        command = sys.argv[1]
-    except IndexError:
-        print 'Usage'
-        print '  manage.py compile'
-        print '  manage.py run'
-        exit()
+    listener = Listener(mic=mic)
+    b = Brain()
 
-    if command == 'compile':
-        print 'Compiling language files ....'
+    while True:
+        onset_frames = listener.get_disturbance()
+        onset = b.transcribe(onset_frames)
 
-        m = dir(modules)
+        if 'computer' in onset[0].lower():
+            phrase_frames = listener.get_phrase()
+            phrase = b.transcribe(phrase_frames)
 
-        words = []
-        for module_name in m:
-            try:
-                eval('words.extend(modules.%s.WORDS)' % module_name)
-            except:
-                pass  # module probably doesn't have the property
+            logging.info('Heard "%s"', phrase[0])
 
-        words = list(set(words))
-
-        # for spotify module
-        words.extend(['MUSIC', 'SPOTIFY'])
-
-        default_model = LanguageModel(settings.DEFAULT_MODEL_NAME)
-        default_model.build(words)
-
-    elif command == 'run':
-
-        default_model = LanguageModel(settings.DEFAULT_MODEL_NAME)
-        persona_model = LanguageModel(settings.PERSONA_MODEL_NAME)
-
-        mic = Mic(
-            default_decoder=default_model.get_decoder(),
-            persona_decoder=persona_model.get_decoder(),
-        )
-
-        mic.voice.say('How can I be of service?')
-
-        conversation = Conversation('JASPER', mic, settings.USER_PROFILE)
-        conversation.handleForever()
+            if 'exit' in phrase[0]:
+                exit()
