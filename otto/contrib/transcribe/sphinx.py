@@ -6,12 +6,9 @@ except ValueError:
     import pocketsphinx as ps
 
 
-class Brain(object):
+class PocketSphinxSTT(object):
 
     def __init__(self):
-        """
-        """
-
         self.decoder = ps.Decoder(
             # lm='assets/language/onset.lm',
             # dict='assets/language/onset.dict',
@@ -24,4 +21,4 @@ class Brain(object):
         tmp_file.seek(0)
         self.decoder.decode_raw(tmp_file)
         tmp_file.close()
-        return self.decoder.get_hyp()
+        return self.decoder.get_hyp()[0]
