@@ -19,6 +19,9 @@ class WitSTT(object):
             w.setnchannels(1)
             w.setsampwidth(2L)
             w.setframerate(16000)
+            # `data` is a stream object, I should be able to
+            # pass it to request.post raw and stream the audio
+            # to wit.ai.
             w.writeframes(b''.join(data))
 
         tmp_file.seek(0)
