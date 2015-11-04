@@ -1,9 +1,4 @@
 import requests
-import wave
-
-from contextlib import closing
-from tempfile import TemporaryFile
-
 from otto import settings
 
 
@@ -11,21 +6,10 @@ class WitSTT(object):
 
     url = 'https://api.wit.ai/speech'
 
-    def transcribe(self, data):
-
-        tmp_file = TemporaryFile()
-
-        with closing(wave.open(tmp_file, 'wb')) as w:
-            w.setnchannels(1)
-            w.setsampwidth(2L)
-            w.setframerate(16000)
-            w.writeframes(b''.join(data))
-
-        tmp_file.seek(0)
-
+    def transcribe(self, wav):
         response = requests.post(
             self.url,
-            data=tmp_file,
+            data=wav,
             params={
                 'v': 20141022,
                 # 'encoding': 'floating-point',
@@ -38,7 +22,6 @@ class WitSTT(object):
                 'Content-Type': 'audio/wav',
             },
         )
-        tmp_file.close()
 
         print response.content
         print response.request.headers

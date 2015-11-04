@@ -1,9 +1,9 @@
-import audioop
-import logging
-import numpy as np
-
 from collections import deque
+from contextlib import closing
+import logging
 
+import audioop
+import numpy as np
 
 log = logging.getLogger(__name__)
 
@@ -48,27 +48,31 @@ class AudioScorer(object):
 
 class Listener(object):
 
-    def __init__(self, mic):
-        self.mic = mic
+    def __init__(self, Mic):
+        self.Mic = Mic
 
         # We keep 30 frames of audio (2 seconds) at all times.
-        self.frames = deque(maxlen=30)
         self.scorer = AudioScorer()
 
-    def get_disturbance(self):
-
+    def get_disturbance_as_wav(self):
+        """
+        Returns disturbed portion of recorded audio as readable a wave file.
+        """
         recording = False
         counter = 0
 
-        with self.mic() as mic:
+        onset = deque(maxlen=30)
+
+        with closing(self.Mic()) as mic:
+            log.info('Listening for disturbance.')
             while True:
                 frames = mic.next()
-                self.frames.append(frames)
+                onset.append(frames)
 
                 score, has_disturbance = self.scorer.add(frames)
 
                 if counter > 7:
-                    log.info('...')
+                    log.info('Caught disturbance.')
                     recording = True
                 elif has_disturbance:
                     counter += 1
@@ -79,26 +83,28 @@ class Listener(object):
                 # Finally, if we're recording a disturbance and we have no
                 # more frames w/ counter, we return our recorded frames.
                 if recording and counter < 1:
-                    return ''.join(self.frames)
+                    log.info('Disturbance ended.')
+                    return iter(onset)
 
     def get_phrase(self):
-
-        phrase = []
+        """
+        Returns a generator that yields fragments of phrase
+        audio (raw).
+        """
         counter = 30  # give us a full 2 seconds of time to start
 
-        with self.mic() as mic:
-            log.info('Yes?')
+        with closing(self.Mic()) as mic:
+            log.info('Recording phrase.')
             while True:
                 frames = mic.next()
-                phrase.append(frames)
 
                 score, has_disturbance = self.scorer.add(frames)
 
                 if counter < 15 and has_disturbance:
-                    log.info('Go on ...')
+                    log.info('Recording more in phrase.')
                     counter = 15
                 else:
                     counter -= 1
 
-                if counter < 1:
-                    return ''.join(phrase)
+                if counter >= 1:
+                    yield frames
