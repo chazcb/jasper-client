@@ -1,9 +1,9 @@
-import audioop
-import logging
-import numpy as np
-
 from collections import deque
+from contextlib import closing
+import logging
 
+import audioop
+import numpy as np
 
 log = logging.getLogger(__name__)
 
@@ -48,23 +48,22 @@ class AudioScorer(object):
 
 class Listener(object):
 
-    def __init__(self, mic):
-        self.mic = mic
+    def __init__(self, Mic):
+        self.Mic = Mic
 
         # We keep 30 frames of audio (2 seconds) at all times.
         self.scorer = AudioScorer()
 
-    def get_disturbance(self):
+    def get_disturbance_as_wav(self):
         """
-        Returns a generator that yields fragments of disturbed
-        audio (raw).
+        Returns disturbed portion of recorded audio as readable a wave file.
         """
         recording = False
         counter = 0
 
         onset = deque(maxlen=30)
 
-        with self.mic() as mic:
+        with closing(self.Mic()) as mic:
             log.info('Listening for disturbance.')
             while True:
                 frames = mic.next()
@@ -94,7 +93,7 @@ class Listener(object):
         """
         counter = 30  # give us a full 2 seconds of time to start
 
-        with self.mic() as mic:
+        with closing(self.Mic()) as mic:
             log.info('Recording phrase.')
             while True:
                 frames = mic.next()

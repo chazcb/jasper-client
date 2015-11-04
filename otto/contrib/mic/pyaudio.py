@@ -2,8 +2,6 @@ from __future__ import absolute_import
 
 import pyaudio
 
-from contextlib import contextmanager
-
 
 class PyAudioReader(object):
 
@@ -27,13 +25,3 @@ class PyAudioReader(object):
 
     def next(self):
         return self.stream.read(self.FRAMES_PER_BUFFER)
-
-
-@contextmanager
-def mic():
-    """
-    Open a new PortAudio microphone session.
-    """
-    mic = PyAudioReader()
-    yield mic
-    mic.close()

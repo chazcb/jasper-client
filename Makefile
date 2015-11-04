@@ -5,5 +5,10 @@ install:
 clean:
 	find . -name "*.pyc" -exec rm -rf {} \;
 
-test:
-	nosetests tests
+integration:
+	nosetests tests/integration --nocapture
+
+unit:
+	nosetests tests/unit --nocapture
+
+test: unit integration
